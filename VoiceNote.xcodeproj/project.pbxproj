@@ -24,6 +24,9 @@
 		1A0000000000000000000092 /* default_glossary.txt in Resources */ = {isa = PBXBuildFile; fileRef = 1A0000000000000000000046 /* default_glossary.txt */; };
 		1A00000000000000000000A0 /* WhisperKit in Frameworks */ = {isa = PBXBuildFile; productRef = 1A0000000000000000000032 /* WhisperKit */; };
 		1A00000000000000000000A1 /* KeyboardShortcuts in Frameworks */ = {isa = PBXBuildFile; productRef = 1A0000000000000000000033 /* KeyboardShortcuts */; };
+		1A0000000000000000000221 /* PathsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000000000000000000211 /* PathsTests.swift */; };
+		1A0000000000000000000222 /* NoteWriterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000000000000000000212 /* NoteWriterTests.swift */; };
+		1A0000000000000000000223 /* AppStateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000000000000000000213 /* AppStateTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -45,6 +48,10 @@
 		1A0000000000000000000062 /* StatusIcon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusIcon.swift; sourceTree = "<group>"; };
 		1A0000000000000000000070 /* Logger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logger.swift; sourceTree = "<group>"; };
 		1A0000000000000000000071 /* PermissionHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PermissionHelper.swift; sourceTree = "<group>"; };
+		1A0000000000000000000201 /* VoiceNoteTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VoiceNoteTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		1A0000000000000000000211 /* PathsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PathsTests.swift; sourceTree = "<group>"; };
+		1A0000000000000000000212 /* NoteWriterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteWriterTests.swift; sourceTree = "<group>"; };
+		1A0000000000000000000213 /* AppStateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppStateTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -57,6 +64,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		1A0000000000000000000206 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -64,6 +78,7 @@
 			isa = PBXGroup;
 			children = (
 				1A0000000000000000000005 /* VoiceNote */,
+				1A0000000000000000000210 /* VoiceNoteTests */,
 				1A0000000000000000000003 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -72,8 +87,19 @@
 			isa = PBXGroup;
 			children = (
 				1A0000000000000000000040 /* VoiceNote.app */,
+				1A0000000000000000000201 /* VoiceNoteTests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		1A0000000000000000000210 /* VoiceNoteTests */ = {
+			isa = PBXGroup;
+			children = (
+				1A0000000000000000000211 /* PathsTests.swift */,
+				1A0000000000000000000212 /* NoteWriterTests.swift */,
+				1A0000000000000000000213 /* AppStateTests.swift */,
+			);
+			path = VoiceNoteTests;
 			sourceTree = "<group>";
 		};
 		1A0000000000000000000005 /* VoiceNote */ = {
@@ -164,6 +190,26 @@
 			productReference = 1A0000000000000000000040 /* VoiceNote.app */;
 			productType = "com.apple.product-type.application";
 		};
+		1A0000000000000000000200 /* VoiceNoteTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1A0000000000000000000202 /* Build configuration list for PBXNativeTarget "VoiceNoteTests" */;
+			buildPhases = (
+				1A0000000000000000000205 /* Sources */,
+				1A0000000000000000000206 /* Frameworks */,
+				1A0000000000000000000207 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				1A0000000000000000000209 /* PBXTargetDependency */,
+			);
+			name = VoiceNoteTests;
+			packageProductDependencies = (
+			);
+			productName = VoiceNoteTests;
+			productReference = 1A0000000000000000000201 /* VoiceNoteTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -176,6 +222,10 @@
 				TargetAttributes = {
 					1A000000000000000000000B = {
 						CreatedOnToolsVersion = 15.0;
+					};
+					1A0000000000000000000200 = {
+						CreatedOnToolsVersion = 15.0;
+						TestTargetID = 1A000000000000000000000B;
 					};
 				};
 			};
@@ -197,6 +247,7 @@
 			projectRoot = "";
 			targets = (
 				1A000000000000000000000B /* VoiceNote */,
+				1A0000000000000000000200 /* VoiceNoteTests */,
 			);
 		};
 /* End PBXProject section */
@@ -209,6 +260,13 @@
 				1A0000000000000000000091 /* Preview Assets.xcassets in Resources */,
 				1A0000000000000000000090 /* Assets.xcassets in Resources */,
 				1A0000000000000000000092 /* default_glossary.txt in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1A0000000000000000000207 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -234,7 +292,35 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		1A0000000000000000000205 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1A0000000000000000000221 /* PathsTests.swift in Sources */,
+				1A0000000000000000000222 /* NoteWriterTests.swift in Sources */,
+				1A0000000000000000000223 /* AppStateTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXContainerItemProxy section */
+		1A0000000000000000000208 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1A0000000000000000000001 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 1A000000000000000000000B;
+			remoteInfo = VoiceNote;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXTargetDependency section */
+		1A0000000000000000000209 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 1A000000000000000000000B /* VoiceNote */;
+			targetProxy = 1A0000000000000000000208 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		1A0000000000000000000012 /* Debug */ = {
@@ -411,6 +497,40 @@
 			};
 			name = Release;
 		};
+		1A0000000000000000000203 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.george.voicenote.tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/VoiceNote.app/Contents/MacOS/VoiceNote";
+			};
+			name = Debug;
+		};
+		1A0000000000000000000204 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.george.voicenote.tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/VoiceNote.app/Contents/MacOS/VoiceNote";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -428,6 +548,15 @@
 			buildConfigurations = (
 				1A0000000000000000000014 /* Debug */,
 				1A0000000000000000000015 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		1A0000000000000000000202 /* Build configuration list for PBXNativeTarget "VoiceNoteTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1A0000000000000000000203 /* Debug */,
+				1A0000000000000000000204 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

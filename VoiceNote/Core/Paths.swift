@@ -53,8 +53,9 @@ enum Paths {
     }
 
     /// Reads glossary terms (one per line) and joins with comma for WhisperKit initial prompt.
-    static func readGlossaryAsPrompt() -> String? {
-        guard let contents = try? String(contentsOf: glossaryFile, encoding: .utf8) else {
+    /// `url` defaults to the production glossary path; tests pass a custom URL.
+    static func readGlossaryAsPrompt(from url: URL = Paths.glossaryFile) -> String? {
+        guard let contents = try? String(contentsOf: url, encoding: .utf8) else {
             return nil
         }
         let terms = contents

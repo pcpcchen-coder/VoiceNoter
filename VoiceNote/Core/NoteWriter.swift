@@ -16,15 +16,25 @@ struct NoteWriter {
         return f
     }()
 
-    static func todayNoteURL(now: Date = Date()) -> URL {
+    /// Resolve the note file URL for a given day.
+    /// `directory` defaults to the production notes folder; tests pass a temp URL.
+    static func todayNoteURL(now: Date = Date(), directory: URL = Paths.notesDirectory) -> URL {
         let day = dayFormatter.string(from: now)
-        return Paths.notesDirectory.appendingPathComponent("\(day).md")
+        return directory.appendingPathComponent("\(day).md")
     }
 
     @discardableResult
-    static func append(transcript: String, at date: Date = Date()) throws -> URL {
-        let url = todayNoteURL(now: date)
+    static func append(
+        transcript: String,
+        at date: Date = Date(),
+        directory: URL = Paths.notesDirectory
+    ) throws -> URL {
+        let url = todayNoteURL(now: date, directory: directory)
         let fm = FileManager.default
+
+        if !fm.fileExists(atPath: directory.path) {
+            try fm.createDirectory(at: directory, withIntermediateDirectories: true)
+        }
 
         if !fm.fileExists(atPath: url.path) {
             let header = "# \(dayFormatter.string(from: date))\n"
