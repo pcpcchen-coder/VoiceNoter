@@ -1,0 +1,201 @@
+import SwiftUI
+import AppKit
+
+@main
+struct VoiceNoteApp: App {
+    @StateObject private var state: AppState
+    @StateObject private var coordinator: RecordingCoordinator
+
+    @MainActor
+    init() {
+        Paths.ensureDirectoriesExist()
+        Paths.bootstrapGlossaryIfNeeded()
+        let appState = AppState.shared
+        _state = StateObject(wrappedValue: appState)
+        _coordinator = StateObject(wrappedValue: RecordingCoordinator(state: appState))
+    }
+
+    var body: some Scene {
+        MenuBarExtra {
+            MenuBarView()
+                .environmentObject(state)
+                .environmentObject(coordinator)
+        } label: {
+            StatusIcon(state: state.state, micDenied: state.micPermission == .denied)
+        }
+        .menuBarExtraStyle(.menu)
+
+        Settings {
+            SettingsView().environmentObject(state)
+        }
+    }
+}
+
+/// Wires hotkey events to AudioRecorder → TranscriptionService → NoteWriter,
+/// and reflects progress back into AppState. Single instance owned by the App.
+@MainActor
+final class RecordingCoordinator: ObservableObject {
+    @Published var modelLoadFailed: Bool = false
+
+    private let state: AppState
+    private let recorder = AudioRecorder()
+    private let transcription = TranscriptionService()
+    private var hotkey: HotkeyManager!
+    private var warmupTask: Task<Void, Never>?
+    private var maxDurationGuard: Task<Void, Never>?
+    private var transcribeTask: Task<Void, Never>?
+
+    init(state: AppState) {
+        self.state = state
+        self.hotkey = HotkeyManager(
+            onPress: { [weak self] in self?.handlePress() },
+            onRelease: { [weak self] in self?.handleRelease() }
+        )
+        self.hotkey.register()
+        scheduleWarmup()
+    }
+
+    // MARK: - Warmup
+
+    func retryWarmup() {
+        scheduleWarmup()
+    }
+
+    private func scheduleWarmup() {
+        warmupTask?.cancel()
+        warmupTask = Task { @MainActor [weak self] in
+            await self?.warmupModel()
+        }
+    }
+
+    private func warmupModel() async {
+        let modelName = state.selectedModel
+        modelLoadFailed = false
+        state.lastError = nil
+        state.state = .downloadingModel(progress: 0)
+        do {
+            try await transcription.warmup(modelName: modelName) { [weak self] progress in
+                guard let self else { return }
+                if progress >= 1.0 {
+                    self.state.state = .idle
+                } else {
+                    self.state.state = .downloadingModel(progress: progress)
+                }
+            }
+            state.state = .idle
+            state.lastError = nil
+            Log.app.info("Warmup completed for model \(modelName, privacy: .public)")
+        } catch is CancellationError {
+            // Superseded by another warmup; do nothing.
+            return
+        } catch {
+            // Use a soft failure so the icon stays in the normal "mic" look — the spec
+            // reserves the gray icon for a denied microphone permission. The retry
+            // button is gated by `modelLoadFailed`, and `handlePress()` blocks recording
+            // while `transcription.isReady == false`.
+            modelLoadFailed = true
+            state.noteSoftFailure("模型初始化失敗：\(error.localizedDescription)")
+        }
+    }
+
+    // MARK: - Hotkey handlers
+
+    private func handlePress() {
+        // Block while busy or downloading.
+        switch state.state {
+        case .recording, .transcribing, .downloadingModel:
+            return
+        default:
+            break
+        }
+
+        // Model not ready yet — fail fast so the user isn't surprised at transcribe time.
+        if !transcription.isReady {
+            if modelLoadFailed {
+                state.noteSoftFailure("模型尚未載入，請點擊「重試模型載入」")
+            } else {
+                state.noteSoftFailure("模型尚在載入中，請稍候…")
+            }
+            return
+        }
+
+        // First-press permission flow: request mic access if undetermined; abort otherwise.
+        switch state.micPermission {
+        case .denied:
+            state.noteSoftFailure("麥克風權限未授予")
+            return
+        case .undetermined:
+            // Trigger system permission prompt; do NOT auto-record afterwards because
+            // the user has likely already released the hotkey while answering the dialog.
+            Task { @MainActor [weak self] in
+                guard let self else { return }
+                _ = await PermissionHelper.requestMicrophoneAccess()
+                self.state.refreshMicPermission()
+            }
+            return
+        case .authorized:
+            break
+        }
+
+        startRecordingNow()
+    }
+
+    private func startRecordingNow() {
+        state.clearTransientError()
+        do {
+            try recorder.start()
+            state.state = .recording(startedAt: Date())
+
+            // Hard cap the recording at maxDurationSeconds.
+            maxDurationGuard?.cancel()
+            maxDurationGuard = Task { [weak self] in
+                let nanos = UInt64(AudioRecorder.maxDurationSeconds * 1_000_000_000)
+                try? await Task.sleep(nanoseconds: nanos)
+                guard !Task.isCancelled else { return }
+                self?.handleRelease()
+            }
+        } catch {
+            state.noteSoftFailure("錄音失敗：\(error.localizedDescription)")
+        }
+    }
+
+    private func handleRelease() {
+        guard case .recording = state.state else { return }
+        maxDurationGuard?.cancel()
+        maxDurationGuard = nil
+
+        state.state = .transcribing
+        transcribeTask?.cancel()
+        transcribeTask = Task { [weak self] in
+            await self?.runTranscription()
+        }
+    }
+
+    private func runTranscription() async {
+        let audioURL: URL
+        do {
+            audioURL = try await recorder.stop()
+        } catch AudioRecorderError.tooShort {
+            Log.app.info("Recording too short, ignored")
+            state.state = .idle
+            return
+        } catch {
+            state.noteSoftFailure("錄音停止失敗：\(error.localizedDescription)")
+            return
+        }
+
+        defer { try? FileManager.default.removeItem(at: audioURL) }
+
+        do {
+            let prompt = Paths.readGlossaryAsPrompt()
+            let text = try await transcription.transcribe(audioURL: audioURL, prompt: prompt)
+            state.lastTranscript = text
+            NoteWriter.copyToPasteboard(text)
+            try NoteWriter.append(transcript: text)
+            state.state = .idle
+            state.lastError = nil
+        } catch {
+            state.noteSoftFailure("上次轉錄失敗：\(error.localizedDescription)")
+        }
+    }
+}
