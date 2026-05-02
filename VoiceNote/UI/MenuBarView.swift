@@ -4,6 +4,7 @@ import AppKit
 
 struct MenuBarView: View {
     @EnvironmentObject var state: AppState
+    @EnvironmentObject var coordinator: RecordingCoordinator
 
     var body: some View {
         Group {
@@ -15,8 +16,12 @@ struct MenuBarView: View {
                 Text(statusLine).disabled(true)
             }
 
+            if coordinator.modelLoadFailed {
+                Button("重試模型載入") { coordinator.retryWarmup() }
+            }
+
             if let error = state.lastError {
-                Text("上次轉錄失敗：\(error)")
+                Text(error)
                     .foregroundStyle(.red)
                     .disabled(true)
             }

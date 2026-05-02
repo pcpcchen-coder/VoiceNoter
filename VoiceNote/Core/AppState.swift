@@ -32,10 +32,20 @@ final class AppState: ObservableObject {
         self.micPermission = PermissionHelper.microphoneStatus()
     }
 
+    /// Hard error — sets state to `.error`. Use for failures that block normal operation
+    /// (e.g. model load failure). The status icon will reflect this.
     func setError(_ message: String) {
         Log.app.error("AppState error: \(message, privacy: .public)")
         self.lastError = message
         self.state = .error(message)
+    }
+
+    /// Soft failure — keeps state at `.idle` but surfaces a red message in the menu.
+    /// Use for transient errors like a single transcription failure.
+    func noteSoftFailure(_ message: String) {
+        Log.app.error("AppState soft failure: \(message, privacy: .public)")
+        self.lastError = message
+        self.state = .idle
     }
 
     func clearTransientError() {

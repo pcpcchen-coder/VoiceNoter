@@ -17,7 +17,9 @@ struct VoiceNoteApp: App {
 
     var body: some Scene {
         MenuBarExtra {
-            MenuBarView().environmentObject(state)
+            MenuBarView()
+                .environmentObject(state)
+                .environmentObject(coordinator)
         } label: {
             StatusIcon(state: state.state, micDenied: state.micPermission == .denied)
         }
@@ -33,10 +35,13 @@ struct VoiceNoteApp: App {
 /// and reflects progress back into AppState. Single instance owned by the App.
 @MainActor
 final class RecordingCoordinator: ObservableObject {
+    @Published var modelLoadFailed: Bool = false
+
     private let state: AppState
     private let recorder = AudioRecorder()
     private let transcription = TranscriptionService()
     private var hotkey: HotkeyManager!
+    private var warmupTask: Task<Void, Never>?
     private var maxDurationGuard: Task<Void, Never>?
     private var transcribeTask: Task<Void, Never>?
 
@@ -47,14 +52,26 @@ final class RecordingCoordinator: ObservableObject {
             onRelease: { [weak self] in self?.handleRelease() }
         )
         self.hotkey.register()
-
-        Task { await self.warmupModel() }
+        scheduleWarmup()
     }
 
     // MARK: - Warmup
 
+    func retryWarmup() {
+        scheduleWarmup()
+    }
+
+    private func scheduleWarmup() {
+        warmupTask?.cancel()
+        warmupTask = Task { @MainActor [weak self] in
+            await self?.warmupModel()
+        }
+    }
+
     private func warmupModel() async {
         let modelName = state.selectedModel
+        modelLoadFailed = false
+        state.lastError = nil
         state.state = .downloadingModel(progress: 0)
         do {
             try await transcription.warmup(modelName: modelName) { [weak self] progress in
@@ -66,9 +83,18 @@ final class RecordingCoordinator: ObservableObject {
                 }
             }
             state.state = .idle
+            state.lastError = nil
             Log.app.info("Warmup completed for model \(modelName, privacy: .public)")
+        } catch is CancellationError {
+            // Superseded by another warmup; do nothing.
+            return
         } catch {
-            state.setError("模型初始化失敗：\(error.localizedDescription)")
+            // Use a soft failure so the icon stays in the normal "mic" look — the spec
+            // reserves the gray icon for a denied microphone permission. The retry
+            // button is gated by `modelLoadFailed`, and `handlePress()` blocks recording
+            // while `transcription.isReady == false`.
+            modelLoadFailed = true
+            state.noteSoftFailure("模型初始化失敗：\(error.localizedDescription)")
         }
     }
 
@@ -83,21 +109,28 @@ final class RecordingCoordinator: ObservableObject {
             break
         }
 
+        // Model not ready yet — fail fast so the user isn't surprised at transcribe time.
+        if !transcription.isReady {
+            if modelLoadFailed {
+                state.noteSoftFailure("模型尚未載入，請點擊「重試模型載入」")
+            } else {
+                state.noteSoftFailure("模型尚在載入中，請稍候…")
+            }
+            return
+        }
+
         // First-press permission flow: request mic access if undetermined; abort otherwise.
         switch state.micPermission {
         case .denied:
-            state.setError("麥克風權限未授予")
+            state.noteSoftFailure("麥克風權限未授予")
             return
         case .undetermined:
-            Task { [weak self] in
+            // Trigger system permission prompt; do NOT auto-record afterwards because
+            // the user has likely already released the hotkey while answering the dialog.
+            Task { @MainActor [weak self] in
                 guard let self else { return }
-                let granted = await PermissionHelper.requestMicrophoneAccess()
+                _ = await PermissionHelper.requestMicrophoneAccess()
                 self.state.refreshMicPermission()
-                if granted {
-                    self.startRecordingNow()
-                } else {
-                    self.state.setError("麥克風權限未授予")
-                }
             }
             return
         case .authorized:
@@ -122,7 +155,7 @@ final class RecordingCoordinator: ObservableObject {
                 self?.handleRelease()
             }
         } catch {
-            state.setError(error.localizedDescription)
+            state.noteSoftFailure("錄音失敗：\(error.localizedDescription)")
         }
     }
 
@@ -147,7 +180,7 @@ final class RecordingCoordinator: ObservableObject {
             state.state = .idle
             return
         } catch {
-            state.setError(error.localizedDescription)
+            state.noteSoftFailure("錄音停止失敗：\(error.localizedDescription)")
             return
         }
 
@@ -162,7 +195,7 @@ final class RecordingCoordinator: ObservableObject {
             state.state = .idle
             state.lastError = nil
         } catch {
-            state.setError("轉錄失敗：\(error.localizedDescription)")
+            state.noteSoftFailure("上次轉錄失敗：\(error.localizedDescription)")
         }
     }
 }
