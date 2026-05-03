@@ -1,5 +1,6 @@
 import Foundation
 import AppKit
+import CoreGraphics
 
 struct NoteWriter {
     private static let dayFormatter: DateFormatter = {
@@ -57,6 +58,22 @@ struct NoteWriter {
         let pb = NSPasteboard.general
         pb.clearContents()
         pb.setString(text, forType: .string)
+    }
+
+    static func pasteAtCursor(_ text: String) {
+        copyToPasteboard(text)
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+            let source = CGEventSource(stateID: .combinedSessionState)
+
+            let keyDown = CGEvent(keyboardEventSource: source, virtualKey: 0x09, keyDown: true)
+            keyDown?.flags = .maskCommand
+            keyDown?.post(tap: .cgSessionEventTap)
+
+            let keyUp = CGEvent(keyboardEventSource: source, virtualKey: 0x09, keyDown: false)
+            keyUp?.flags = .maskCommand
+            keyUp?.post(tap: .cgSessionEventTap)
+        }
     }
 
     static func openInDefaultApp(_ url: URL) {

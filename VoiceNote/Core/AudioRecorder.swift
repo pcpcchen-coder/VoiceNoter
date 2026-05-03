@@ -102,6 +102,9 @@ final class AudioRecorder {
         if duration < Self.minDurationSeconds {
             throw AudioRecorderError.tooShort
         }
+        if collected.count < Int(Self.targetSampleRate * Self.minDurationSeconds) {
+            throw AudioRecorderError.tooShort
+        }
 
         return try writeWav(samples: collected)
     }

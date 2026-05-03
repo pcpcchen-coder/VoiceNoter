@@ -5,6 +5,7 @@ import AppKit
 struct MenuBarView: View {
     @EnvironmentObject var state: AppState
     @EnvironmentObject var coordinator: RecordingCoordinator
+    @Environment(\.openWindow) private var openWindow
 
     var body: some View {
         Group {
@@ -34,14 +35,24 @@ struct MenuBarView: View {
 
             Divider()
 
+            Button(state.chineseVariant == "zh-Hant" ? "✓ 繁體中文" : "　繁體中文") {
+                state.setChineseVariant("zh-Hant")
+            }
+            Button(state.chineseVariant == "zh-Hans" ? "✓ 簡體中文" : "　簡體中文") {
+                state.setChineseVariant("zh-Hans")
+            }
+
+            Divider()
+
             Button("開啟今日筆記") {
                 NoteWriter.openInDefaultApp(NoteWriter.todayNoteURL())
             }
             Button("在 Finder 顯示筆記資料夾") {
                 NSWorkspace.shared.activateFileViewerSelecting([Paths.notesDirectory])
             }
-            SettingsLink {
-                Text("設定…")
+            Button("設定…") {
+                NSApp.activate(ignoringOtherApps: true)
+                openWindow(id: "settings")
             }
 
             Divider()
@@ -65,6 +76,8 @@ struct MenuBarView: View {
             return "發生錯誤"
         case .downloadingModel(let progress):
             return "下載模型中 \(Int(progress * 100))%"
+        case .loadingModel:
+            return "載入模型中（首次可能需要數分鐘）…"
         }
     }
 

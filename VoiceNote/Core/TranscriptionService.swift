@@ -26,17 +26,45 @@ final class TranscriptionService {
     /// - Parameters:
     ///   - modelName: e.g. `large-v3-turbo`
     ///   - onProgress: invoked for download progress in `[0, 1]`. Always invoked on @MainActor.
+    private static let modelPathPrefix = "whisperkit_model_path_"
+
     func warmup(
         modelName: String,
-        onProgress: @MainActor @escaping (Double) -> Void
+        onProgress: @MainActor @escaping (Double) -> Void,
+        onLoadingStarted: @MainActor @escaping () -> Void = {}
     ) async throws {
         Log.transcription.info("Warming up WhisperKit model=\(modelName, privacy: .public)")
 
         do {
-            // WhisperKit handles download + load internally. Models are cached under
-            // ~/Documents/huggingface/models by default (controlled by HuggingFace
-            // hub conventions).
-            let kit = try await WhisperKit(model: modelName)
+            let cacheKey = Self.modelPathPrefix + modelName
+            let modelFolder: URL
+
+            if let cachedPath = UserDefaults.standard.string(forKey: cacheKey),
+               FileManager.default.fileExists(atPath: cachedPath) {
+                Log.transcription.info("Using cached model at \(cachedPath, privacy: .public)")
+                modelFolder = URL(fileURLWithPath: cachedPath)
+                await onProgress(0.8)
+            } else {
+                modelFolder = try await WhisperKit.download(
+                    variant: modelName
+                ) { progress in
+                    Task { @MainActor in
+                        onProgress(progress.fractionCompleted * 0.8)
+                    }
+                }
+                UserDefaults.standard.set(modelFolder.path, forKey: cacheKey)
+                Log.transcription.info("Model downloaded to \(modelFolder.path, privacy: .public)")
+            }
+            await onLoadingStarted()
+
+            let config = WhisperKitConfig(
+                modelFolder: modelFolder.path,
+                verbose: true,
+                logLevel: .info,
+                load: true,
+                download: false
+            )
+            let kit = try await WhisperKit(config)
             self.whisperKit = kit
             self.loadedModel = modelName
             await onProgress(1.0)
@@ -49,7 +77,7 @@ final class TranscriptionService {
 
     /// Transcribe a 16kHz mono PCM WAV file to text.
     /// `prompt` is best-effort: if the loaded tokenizer can't encode it, we silently skip it.
-    func transcribe(audioURL: URL, prompt: String?) async throws -> String {
+    func transcribe(audioURL: URL, prompt: String?, chineseVariant: String = "zh-Hant") async throws -> String {
         guard let kit = whisperKit else {
             throw TranscriptionError.notReady
         }
@@ -79,7 +107,12 @@ final class TranscriptionService {
                 .trimmingCharacters(in: .whitespacesAndNewlines)
 
             guard !text.isEmpty else { throw TranscriptionError.empty }
-            return text
+
+            if chineseVariant == "zh-Hant" {
+                return text.applyingTransform(StringTransform("Hans-Hant"), reverse: false) ?? text
+            } else {
+                return text.applyingTransform(StringTransform("Hant-Hans"), reverse: false) ?? text
+            }
         } catch let e as TranscriptionError {
             throw e
         } catch {

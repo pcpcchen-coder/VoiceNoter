@@ -27,7 +27,20 @@
 		1A0000000000000000000221 /* PathsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000000000000000000211 /* PathsTests.swift */; };
 		1A0000000000000000000222 /* NoteWriterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000000000000000000212 /* NoteWriterTests.swift */; };
 		1A0000000000000000000223 /* AppStateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000000000000000000213 /* AppStateTests.swift */; };
+		AF24760D2FA74533003FBF7C /* OpenAIOAuthManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF24760C2FA74533003FBF7C /* OpenAIOAuthManager.swift */; };
+		AF24760F2FA7502A003FBF7C /* OpenAISettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF24760E2FA7502A003FBF7C /* OpenAISettingsView.swift */; };
+		AF84009A2FA740090004DAAA /* AIRewriter.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF8400992FA740090004DAAA /* AIRewriter.swift */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		1A0000000000000000000208 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1A0000000000000000000001 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 1A000000000000000000000B;
+			remoteInfo = VoiceNote;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		1A0000000000000000000040 /* VoiceNote.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VoiceNote.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -52,6 +65,9 @@
 		1A0000000000000000000211 /* PathsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PathsTests.swift; sourceTree = "<group>"; };
 		1A0000000000000000000212 /* NoteWriterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteWriterTests.swift; sourceTree = "<group>"; };
 		1A0000000000000000000213 /* AppStateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppStateTests.swift; sourceTree = "<group>"; };
+		AF24760C2FA74533003FBF7C /* OpenAIOAuthManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenAIOAuthManager.swift; sourceTree = "<group>"; };
+		AF24760E2FA7502A003FBF7C /* OpenAISettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenAISettingsView.swift; sourceTree = "<group>"; };
+		AF8400992FA740090004DAAA /* AIRewriter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIRewriter.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -92,16 +108,6 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		1A0000000000000000000210 /* VoiceNoteTests */ = {
-			isa = PBXGroup;
-			children = (
-				1A0000000000000000000211 /* PathsTests.swift */,
-				1A0000000000000000000212 /* NoteWriterTests.swift */,
-				1A0000000000000000000213 /* AppStateTests.swift */,
-			);
-			path = VoiceNoteTests;
-			sourceTree = "<group>";
-		};
 		1A0000000000000000000005 /* VoiceNote */ = {
 			isa = PBXGroup;
 			children = (
@@ -114,6 +120,8 @@
 				1A000000000000000000000A /* Preview Content */,
 				1A0000000000000000000042 /* Info.plist */,
 				1A0000000000000000000043 /* VoiceNote.entitlements */,
+				AF24760C2FA74533003FBF7C /* OpenAIOAuthManager.swift */,
+				AF24760E2FA7502A003FBF7C /* OpenAISettingsView.swift */,
 			);
 			path = VoiceNote;
 			sourceTree = "<group>";
@@ -127,6 +135,7 @@
 				1A0000000000000000000053 /* NoteWriter.swift */,
 				1A0000000000000000000054 /* HotkeyManager.swift */,
 				1A0000000000000000000055 /* Paths.swift */,
+				AF8400992FA740090004DAAA /* AIRewriter.swift */,
 			);
 			path = Core;
 			sourceTree = "<group>";
@@ -164,6 +173,16 @@
 				1A0000000000000000000045 /* Preview Assets.xcassets */,
 			);
 			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		1A0000000000000000000210 /* VoiceNoteTests */ = {
+			isa = PBXGroup;
+			children = (
+				1A0000000000000000000211 /* PathsTests.swift */,
+				1A0000000000000000000212 /* NoteWriterTests.swift */,
+				1A0000000000000000000213 /* AppStateTests.swift */,
+			);
+			path = VoiceNoteTests;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -277,6 +296,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AF24760F2FA7502A003FBF7C /* OpenAISettingsView.swift in Sources */,
 				1A0000000000000000000087 /* Paths.swift in Sources */,
 				1A000000000000000000008B /* Logger.swift in Sources */,
 				1A000000000000000000008C /* PermissionHelper.swift in Sources */,
@@ -288,7 +308,9 @@
 				1A000000000000000000008A /* StatusIcon.swift in Sources */,
 				1A0000000000000000000088 /* MenuBarView.swift in Sources */,
 				1A0000000000000000000089 /* SettingsView.swift in Sources */,
+				AF84009A2FA740090004DAAA /* AIRewriter.swift in Sources */,
 				1A0000000000000000000081 /* VoiceNoteApp.swift in Sources */,
+				AF24760D2FA74533003FBF7C /* OpenAIOAuthManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -303,16 +325,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
-
-/* Begin PBXContainerItemProxy section */
-		1A0000000000000000000208 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 1A0000000000000000000001 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 1A000000000000000000000B;
-			remoteInfo = VoiceNote;
-		};
-/* End PBXContainerItemProxy section */
 
 /* Begin PBXTargetDependency section */
 		1A0000000000000000000209 /* PBXTargetDependency */ = {

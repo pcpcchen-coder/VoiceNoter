@@ -25,9 +25,11 @@ struct VoiceNoteApp: App {
         }
         .menuBarExtraStyle(.menu)
 
-        Settings {
+        Window("VoiceNote 設定", id: "settings") {
             SettingsView().environmentObject(state)
         }
+        .windowResizability(.contentSize)
+        .defaultPosition(.center)
     }
 }
 
@@ -74,14 +76,20 @@ final class RecordingCoordinator: ObservableObject {
         state.lastError = nil
         state.state = .downloadingModel(progress: 0)
         do {
-            try await transcription.warmup(modelName: modelName) { [weak self] progress in
-                guard let self else { return }
-                if progress >= 1.0 {
-                    self.state.state = .idle
-                } else {
-                    self.state.state = .downloadingModel(progress: progress)
+            try await transcription.warmup(
+                modelName: modelName,
+                onProgress: { [weak self] progress in
+                    guard let self else { return }
+                    if progress >= 1.0 {
+                        self.state.state = .idle
+                    } else {
+                        self.state.state = .downloadingModel(progress: progress)
+                    }
+                },
+                onLoadingStarted: { [weak self] in
+                    self?.state.state = .loadingModel
                 }
-            }
+            )
             state.state = .idle
             state.lastError = nil
             Log.app.info("Warmup completed for model \(modelName, privacy: .public)")
@@ -103,7 +111,7 @@ final class RecordingCoordinator: ObservableObject {
     private func handlePress() {
         // Block while busy or downloading.
         switch state.state {
-        case .recording, .transcribing, .downloadingModel:
+        case .recording, .transcribing, .downloadingModel, .loadingModel:
             return
         default:
             break
@@ -188,10 +196,46 @@ final class RecordingCoordinator: ObservableObject {
 
         do {
             let prompt = Paths.readGlossaryAsPrompt()
-            let text = try await transcription.transcribe(audioURL: audioURL, prompt: prompt)
+            let text = try await transcription.transcribe(audioURL: audioURL, prompt: prompt, chineseVariant: state.chineseVariant)
             state.lastTranscript = text
-            NoteWriter.copyToPasteboard(text)
+            if state.pasteAtCursor {
+                NoteWriter.pasteAtCursor(text)
+            } else {
+                NoteWriter.copyToPasteboard(text)
+            }
             try NoteWriter.append(transcript: text)
+            
+            if state.autoProofread {
+                do {
+                    let proofread = try await AIRewriter.rewrite(text)
+                    let noteURL = NoteWriter.todayNoteURL()
+                    if var fileContent = try? String(contentsOf: noteURL, encoding: .utf8) {
+                        if let range = fileContent.range(of: text, options: .backwards) {
+                            fileContent.replaceSubrange(range, with: proofread)
+                            try? fileContent.write(to: noteURL, atomically: true, encoding: .utf8)
+                        }
+                    }
+                    self.state.noteSoftFailure("語音已自動校稿")
+                } catch {
+                    self.state.noteSoftFailure("AI 校稿失敗：\(error.localizedDescription)")
+                }
+            }
+            
+            if text.contains("幫我整理") || text.contains("請整理") {
+                let noteURL = NoteWriter.todayNoteURL()
+                if let original = try? String(contentsOf: noteURL), !original.isEmpty {
+                    Task { @MainActor in
+                        do {
+                            let rewritten = try await AIRewriter.rewrite(original)
+                            try? rewritten.write(to: noteURL, atomically: true, encoding: .utf8)
+                            self.state.noteSoftFailure("筆記內容已由 AI 整理")
+                        } catch {
+                            self.state.noteSoftFailure("AI 整理失敗：\(error.localizedDescription)")
+                        }
+                    }
+                }
+            }
+            
             state.state = .idle
             state.lastError = nil
         } catch {

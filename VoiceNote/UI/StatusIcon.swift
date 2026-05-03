@@ -18,6 +18,7 @@ struct StatusIcon: View {
         case .recording: return "mic.fill"
         case .transcribing: return "waveform"
         case .downloadingModel: return "arrow.down.circle"
+        case .loadingModel: return "cpu"
         }
     }
 
@@ -39,6 +40,8 @@ struct StatusIcon: View {
         case .error(let m): return "VoiceNote — 錯誤：\(m)"
         case .downloadingModel(let p):
             return "VoiceNote — 下載模型中 \(Int(p * 100))%"
+        case .loadingModel:
+            return "VoiceNote — 載入模型中（首次可能需要數分鐘）"
         }
     }
 }
