@@ -60,6 +60,47 @@ struct SettingsView: View {
                     .foregroundStyle(.secondary)
             }
 
+            Section("解碼參數") {
+                Stepper(
+                    "Top-K：\(state.decodingTopK)",
+                    value: Binding(
+                        get: { state.decodingTopK },
+                        set: { state.setDecodingTopK($0) }
+                    ),
+                    in: 1...20
+                )
+                Text("取機率最高的 K 個 token 做取樣，值越大結果越多樣。")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+
+                HStack {
+                    Text("Temperature：\(String(format: "%.1f", state.decodingTemperature))")
+                    Slider(
+                        value: Binding(
+                            get: { state.decodingTemperature },
+                            set: { state.setDecodingTemperature($0) }
+                        ),
+                        in: 0.0...1.0,
+                        step: 0.1
+                    )
+                }
+                Text("取樣溫度，0 = greedy（最穩定），越高越隨機。")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+
+                Stepper(
+                    "溫度重試次數：\(state.decodingFallbackCount)",
+                    value: Binding(
+                        get: { state.decodingFallbackCount },
+                        set: { state.setDecodingFallbackCount($0) }
+                    ),
+                    in: 0...10
+                )
+                Text("品質不佳時自動升溫重試的次數，效果類似 best_of。")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+
             Section("輸出方式") {
                 Toggle(
                     "辨識後自動輸入到游標位置",
@@ -68,7 +109,7 @@ struct SettingsView: View {
                         set: { state.setPasteAtCursor($0) }
                     )
                 )
-                Text("開啟後，語音辨識結果會像輸入法一樣直接貼到游標所在位置。關閉則只複製到剪貼簿。需要輔助使用權限。")
+                Text("開啟後，語音辨識結果會像輸入法一樣直接貼到游標所在位置。關閉則只複製到剪貼簿。")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
@@ -155,7 +196,7 @@ struct SettingsView: View {
             }
         }
         .formStyle(.grouped)
-        .frame(width: 480, height: 720)
+        .frame(width: 480, height: 880)
         .padding()
     }
 

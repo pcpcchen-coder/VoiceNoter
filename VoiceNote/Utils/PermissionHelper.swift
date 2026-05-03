@@ -1,6 +1,7 @@
 import Foundation
 import AVFoundation
 import AppKit
+import ApplicationServices
 
 enum MicrophonePermissionStatus {
     case authorized
@@ -33,6 +34,25 @@ enum PermissionHelper {
 
     static func openMicrophoneSettings() {
         let urlString = "x-apple.systempreferences:com.apple.preference.security?Privacy_Microphone"
+        if let url = URL(string: urlString) {
+            NSWorkspace.shared.open(url)
+        }
+    }
+
+    // MARK: - Accessibility
+
+    static func isAccessibilityGranted() -> Bool {
+        AXIsProcessTrusted()
+    }
+
+    @discardableResult
+    static func requestAccessibilityIfNeeded() -> Bool {
+        let options = [kAXTrustedCheckOptionPrompt.takeUnretainedValue(): true] as CFDictionary
+        return AXIsProcessTrustedWithOptions(options)
+    }
+
+    static func openAccessibilitySettings() {
+        let urlString = "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility"
         if let url = URL(string: urlString) {
             NSWorkspace.shared.open(url)
         }

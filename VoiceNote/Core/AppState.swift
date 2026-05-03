@@ -52,6 +52,9 @@ final class AppState: ObservableObject {
     @Published var autoProofread: Bool = UserDefaults.standard.bool(forKey: "autoProofread")
     @Published var chineseVariant: String = UserDefaults.standard.string(forKey: "chineseVariant") ?? "zh-Hant"
     @Published var pasteAtCursor: Bool = UserDefaults.standard.object(forKey: "pasteAtCursor") as? Bool ?? true
+    @Published var decodingTopK: Int = UserDefaults.standard.object(forKey: "decodingTopK") as? Int ?? 5
+    @Published var decodingTemperature: Float = UserDefaults.standard.object(forKey: "decodingTemperature") as? Float ?? 0.0
+    @Published var decodingFallbackCount: Int = UserDefaults.standard.object(forKey: "decodingFallbackCount") as? Int ?? 5
 
     private init() {
         self.micPermission = PermissionHelper.microphoneStatus()
@@ -98,6 +101,21 @@ final class AppState: ObservableObject {
     func setPasteAtCursor(_ enabled: Bool) {
         UserDefaults.standard.set(enabled, forKey: "pasteAtCursor")
         self.pasteAtCursor = enabled
+    }
+
+    func setDecodingTopK(_ value: Int) {
+        UserDefaults.standard.set(value, forKey: "decodingTopK")
+        self.decodingTopK = value
+    }
+
+    func setDecodingTemperature(_ value: Float) {
+        UserDefaults.standard.set(value, forKey: "decodingTemperature")
+        self.decodingTemperature = value
+    }
+
+    func setDecodingFallbackCount(_ value: Int) {
+        UserDefaults.standard.set(value, forKey: "decodingFallbackCount")
+        self.decodingFallbackCount = value
     }
 
     func refreshMicPermission() {

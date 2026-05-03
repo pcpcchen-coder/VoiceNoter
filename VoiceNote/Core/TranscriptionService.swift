@@ -77,7 +77,14 @@ final class TranscriptionService {
 
     /// Transcribe a 16kHz mono PCM WAV file to text.
     /// `prompt` is best-effort: if the loaded tokenizer can't encode it, we silently skip it.
-    func transcribe(audioURL: URL, prompt: String?, chineseVariant: String = "zh-Hant") async throws -> String {
+    func transcribe(
+        audioURL: URL,
+        prompt: String?,
+        chineseVariant: String = "zh-Hant",
+        topK: Int = 5,
+        temperature: Float = 0.0,
+        temperatureFallbackCount: Int = 5
+    ) async throws -> String {
         guard let kit = whisperKit else {
             throw TranscriptionError.notReady
         }
@@ -85,7 +92,9 @@ final class TranscriptionService {
         var options = DecodingOptions()
         options.language = "zh"
         options.task = .transcribe
-        options.temperature = 0.0
+        options.temperature = temperature
+        options.topK = topK
+        options.temperatureFallbackCount = temperatureFallbackCount
         options.usePrefillPrompt = true
         options.skipSpecialTokens = true
         options.withoutTimestamps = true

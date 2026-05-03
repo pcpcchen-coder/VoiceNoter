@@ -1,6 +1,5 @@
 import Foundation
 import AppKit
-import CoreGraphics
 
 struct NoteWriter {
     private static let dayFormatter: DateFormatter = {

@@ -13,6 +13,7 @@ struct VoiceNoteApp: App {
         let appState = AppState.shared
         _state = StateObject(wrappedValue: appState)
         _coordinator = StateObject(wrappedValue: RecordingCoordinator(state: appState))
+        PermissionHelper.requestAccessibilityIfNeeded()
     }
 
     var body: some Scene {
@@ -196,7 +197,14 @@ final class RecordingCoordinator: ObservableObject {
 
         do {
             let prompt = Paths.readGlossaryAsPrompt()
-            let text = try await transcription.transcribe(audioURL: audioURL, prompt: prompt, chineseVariant: state.chineseVariant)
+            let text = try await transcription.transcribe(
+                audioURL: audioURL,
+                prompt: prompt,
+                chineseVariant: state.chineseVariant,
+                topK: state.decodingTopK,
+                temperature: state.decodingTemperature,
+                temperatureFallbackCount: state.decodingFallbackCount
+            )
             state.lastTranscript = text
             if state.pasteAtCursor {
                 NoteWriter.pasteAtCursor(text)
