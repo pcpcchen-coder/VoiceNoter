@@ -6,6 +6,7 @@ import WhisperKit
 struct SettingsView: View {
     @EnvironmentObject var state: AppState
     @ObservedObject private var oauthManager = OpenAIOAuthManager.shared
+    @StateObject private var credentials = CredentialsViewModel()
     @State private var apiKeyInput: String = ""
     @State private var isDownloading = false
     @State private var downloadProgress: Double = 0
@@ -129,7 +130,7 @@ struct SettingsView: View {
 
             Section("OpenAI 認證") {
                 LabeledContent("認證狀態") {
-                    if oauthManager.accessToken != nil {
+                    if credentials.isAuthenticated {
                         Text("已認證")
                             .foregroundStyle(.green)
                     } else {
@@ -145,7 +146,7 @@ struct SettingsView: View {
                     .disabled(apiKeyInput.isEmpty)
 
                 Button("清除認證資訊") {
-                    oauthManager.clearTokens()
+                    credentials.clear()
                 }
 
                 Toggle(
@@ -224,8 +225,7 @@ struct SettingsView: View {
     }
 
     private func saveAPIKey() {
-        guard !apiKeyInput.isEmpty else { return }
-        oauthManager.setAccessToken(apiKeyInput)
+        credentials.save(apiKeyInput)
         apiKeyInput = ""
     }
 

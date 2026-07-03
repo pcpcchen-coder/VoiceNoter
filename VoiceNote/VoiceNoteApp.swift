@@ -10,6 +10,7 @@ struct VoiceNoteApp: App {
     init() {
         Paths.ensureDirectoriesExist()
         GlossaryStore().bootstrapIfNeeded()
+        migrateLegacyToken(defaults: .standard, into: KeychainCredentialStore())
         let appState = AppState.shared
         _state = StateObject(wrappedValue: appState)
         _coordinator = StateObject(wrappedValue: RecordingCoordinator(state: appState))
@@ -54,7 +55,7 @@ final class RecordingCoordinator: ObservableObject {
     init(state: AppState) {
         self.state = state
         self.transcriber = WhisperKitTranscriber(settings: state.settings)
-        self.rewriter = OpenAIRewriter(credentials: OpenAIOAuthManager.shared)
+        self.rewriter = OpenAIRewriter(credentials: KeychainCredentialStore())
         self.hotkey = HotkeyManager(
             onPress: { [weak self] in self?.handlePress() },
             onRelease: { [weak self] in self?.handleRelease() }
