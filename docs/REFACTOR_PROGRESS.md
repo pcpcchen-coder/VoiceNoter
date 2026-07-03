@@ -32,7 +32,7 @@ Claude（或任何執行者）必須遵守以下守則：
 
 | Step | 標題 | 狀態 | 完成日期 | Commit | 備註 |
 |------|------|------|----------|--------|------|
-| 1 | 建立 CI 與測試基準線 | ⬜ | | | |
+| 1 | 建立 CI 與測試基準線 | ✅ | 2026-07-03 | `<pending>` | CI workflow + `scripts/test.sh` 就緒；scheme 測試 action 本已正確無需改。CI 綠燈待首次 push 後於 GitHub Actions 確認（Linux 環境無法跑 xcodebuild） |
 | 2 | `SettingsStore`：設定集中化與可注入 | ⬜ | | | |
 | 3 | `TranscriptPostProcessor`：繁簡轉換純函式化 | ⬜ | | | |
 | 4 | `NoteWriter` 拆分：Formatter + Store + 系統動作 | ⬜ | | | |

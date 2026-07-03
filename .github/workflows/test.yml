@@ -1,0 +1,41 @@
+name: Tests
+
+# 觸發：任何分支的 push 與所有 pull request。
+# 本專案常直接 push 到 feature 分支（不一定開 PR），故 push 不限分支，
+# 以便每次推送都跑測試。
+#
+# 成本備註：私有 repo 的 macOS runner 分鐘數以 10 倍計費。若額度吃緊，
+# 可將 push 限縮為僅 main 分支（改成 `push: { branches: [main] }`），
+# 平時改用本機 `./scripts/test.sh` 驗證。
+on:
+  push:
+  pull_request:
+
+# 同一 ref 的舊執行在有新 push 時取消，避免浪費 runner 分鐘數。
+concurrency:
+  group: tests-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Unit Tests (macOS)
+    runs-on: macos-15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Show Xcode version
+        run: xcodebuild -version
+
+      # 快取 Swift Package 相依（WhisperKit、KeyboardShortcuts），
+      # 對應 scripts/test.sh 的 -clonedSourcePackagesDirPath。
+      - name: Cache Swift packages
+        uses: actions/cache@v4
+        with:
+          path: .spm-cache
+          key: spm-${{ runner.os }}-${{ hashFiles('**/Package.resolved') }}
+          restore-keys: |
+            spm-${{ runner.os }}-
+
+      - name: Run tests
+        run: bash scripts/test.sh

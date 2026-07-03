@@ -1,5 +1,7 @@
 # VoiceNote
 
+[![Tests](https://github.com/pcpcchen-coder/VoiceNoter/actions/workflows/test.yml/badge.svg)](https://github.com/pcpcchen-coder/VoiceNoter/actions/workflows/test.yml)
+
 macOS 選單列語音筆記 App — 按住熱鍵即錄音，放開即用 WhisperKit 在裝置本地轉成文字。支援繁／簡中文切換、游標位置直接輸入、OpenAI AI 自動校稿，轉錄結果自動追加到當日 Markdown 筆記。
 
 ## 功能總覽
@@ -34,6 +36,20 @@ macOS 選單列語音筆記 App — 按住熱鍵即錄音，放開即用 Whisper
 ```bash
 xcodebuild -scheme VoiceNote -configuration Debug build
 ```
+
+## 跑測試
+
+單元測試涵蓋純邏輯（設定、路徑、筆記格式、繁簡轉換等）。本機執行：
+
+```bash
+./scripts/test.sh
+```
+
+此腳本與 CI 使用完全相同的指令（`xcodebuild test`）。每次 push 與 pull request 會由
+[GitHub Actions](.github/workflows/test.yml) 在 macOS runner 上自動跑測試，結果反映在上方的 Tests badge。
+
+> 涉及真實麥克風、全域熱鍵、WhisperKit 模型、Keychain 的整合面無法用單元測試覆蓋，
+> 改由 [`docs/REFACTOR_PLAN.md`](docs/REFACTOR_PLAN.md) 附錄 A 的手動驗收清單把關。
 
 ## 第一次啟動
 
