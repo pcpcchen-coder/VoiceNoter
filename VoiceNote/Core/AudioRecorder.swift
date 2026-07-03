@@ -109,21 +109,6 @@ final class AudioRecorder {
         return try writeWav(samples: collected)
     }
 
-    func cancel() {
-        guard isRecording else { return }
-        engine.inputNode.removeTap(onBus: 0)
-        engine.stop()
-        isRecording = false
-        startedAt = nil
-        queue.async { self.samples.removeAll(keepingCapacity: false) }
-        Log.audio.info("Recording cancelled")
-    }
-
-    var currentDuration: TimeInterval {
-        guard let started = startedAt else { return 0 }
-        return Date().timeIntervalSince(started)
-    }
-
     // MARK: - Private
 
     private func handleInput(buffer: AVAudioPCMBuffer, inputFormat: AVAudioFormat) {

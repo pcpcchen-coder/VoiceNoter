@@ -5,7 +5,6 @@ import WhisperKit
 
 struct SettingsView: View {
     @EnvironmentObject var state: AppState
-    @ObservedObject private var oauthManager = OpenAIOAuthManager.shared
     @StateObject private var credentials = CredentialsViewModel()
     @State private var apiKeyInput: String = ""
     @State private var isDownloading = false
@@ -148,31 +147,6 @@ struct SettingsView: View {
                 Button("清除認證資訊") {
                     credentials.clear()
                 }
-
-                Toggle(
-                    "API 失敗時自動重新認證",
-                    isOn: Binding(
-                        get: { oauthManager.autoReauthOn401 },
-                        set: { oauthManager.setAutoReauthOn401($0) }
-                    )
-                )
-                .help("若啟用，當遇到 401 Unauthorized 會自動啟動認證流程。")
-            }
-
-            Section("OpenAI 網頁登入 (OAuth)") {
-                TextField("Client ID", text: $oauthManager.clientID)
-                    .disabled(true)
-                TextField("Redirect URI", text: $oauthManager.redirectURI)
-                    .disabled(true)
-
-                Button("透過網頁登入 OpenAI") {
-                    Task { await oauthManager.login() }
-                }
-                .disabled(true)
-
-                Text("尚未開放 — OpenAI 目前未提供第三方 OAuth App 註冊，請使用上方 API Key 認證。")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
             }
 
             Section("筆記") {
