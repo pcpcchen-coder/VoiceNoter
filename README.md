@@ -100,6 +100,16 @@ App 啟動後會在選單列出現麥克風圖示（無 Dock 圖示）。
 今天的語音筆記內容
 ```
 
+## 重構計畫
+
+本專案正在進行分階段重構（TDD），相關文件：
+
+- [`docs/PROJECT_REVIEW.md`](docs/PROJECT_REVIEW.md) — 專案現況檢閱與問題清單
+- [`docs/REFACTOR_PLAN.md`](docs/REFACTOR_PLAN.md) — 5 個 Phase、14 個 Step 的重構計畫（含每步的 TDD 測試規格與驗收條件）
+- [`docs/REFACTOR_PROGRESS.md`](docs/REFACTOR_PROGRESS.md) — 進度追蹤與執行守則
+
+執行方式：對 Claude 說「請完成 Step N」，即可依計畫逐步完成。
+
 ## 技術架構
 
 - **SwiftUI** — MenuBarExtra 選單列 App（LSUIElement）
