@@ -77,7 +77,7 @@ final class AppStateTests: XCTestCase {
 
         s.updateModelChoice("openai_whisper-small")
         s.setAutoProofread(true)
-        s.setChineseVariant("zh-Hans")
+        s.setChineseVariant(.simplified)
         s.setPasteAtCursor(false)
         s.setDecodingTopK(9)
         s.setDecodingTemperature(0.4)
@@ -85,7 +85,7 @@ final class AppStateTests: XCTestCase {
 
         XCTAssertEqual(s.selectedModel, "openai_whisper-small")
         XCTAssertTrue(s.autoProofread)
-        XCTAssertEqual(s.chineseVariant, "zh-Hans")
+        XCTAssertEqual(s.chineseVariant, .simplified)
         XCTAssertFalse(s.pasteAtCursor)
         XCTAssertEqual(s.decodingTopK, 9)
         XCTAssertEqual(s.decodingTemperature, 0.4)
@@ -97,12 +97,12 @@ final class AppStateTests: XCTestCase {
         let store = SettingsStore(defaults: defaults)
 
         let s = AppState(settings: store)
-        s.setChineseVariant("zh-Hans")
+        s.setChineseVariant(.simplified)
         s.updateModelChoice("openai_whisper-small")
 
         // A fresh AppState over the same store should observe the persisted values.
         let reloaded = AppState(settings: store)
-        XCTAssertEqual(reloaded.chineseVariant, "zh-Hans")
+        XCTAssertEqual(reloaded.chineseVariant, .simplified)
         XCTAssertEqual(reloaded.selectedModel, "openai_whisper-small")
     }
 }

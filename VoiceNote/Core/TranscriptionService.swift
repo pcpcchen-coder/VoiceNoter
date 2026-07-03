@@ -80,7 +80,7 @@ final class TranscriptionService {
     func transcribe(
         audioURL: URL,
         prompt: String?,
-        chineseVariant: String = "zh-Hant",
+        chineseVariant: ChineseVariant = .traditional,
         topK: Int = 5,
         temperature: Float = 0.0,
         temperatureFallbackCount: Int = 5
@@ -110,18 +110,13 @@ final class TranscriptionService {
                 decodeOptions: options
             )
 
-            let text = results
-                .map { $0.text }
-                .joined(separator: " ")
-                .trimmingCharacters(in: .whitespacesAndNewlines)
-
-            guard !text.isEmpty else { throw TranscriptionError.empty }
-
-            if chineseVariant == "zh-Hant" {
-                return text.applyingTransform(StringTransform("Hans-Hant"), reverse: false) ?? text
-            } else {
-                return text.applyingTransform(StringTransform("Hant-Hans"), reverse: false) ?? text
+            guard let text = TranscriptPostProcessor.process(
+                segments: results.map { $0.text },
+                variant: chineseVariant
+            ) else {
+                throw TranscriptionError.empty
             }
+            return text
         } catch let e as TranscriptionError {
             throw e
         } catch {

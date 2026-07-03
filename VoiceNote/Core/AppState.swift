@@ -32,7 +32,7 @@ final class AppState: ObservableObject {
     @Published var micPermission: MicrophonePermissionStatus = .undetermined
     @Published var selectedModel: String
     @Published var autoProofread: Bool
-    @Published var chineseVariant: String
+    @Published var chineseVariant: ChineseVariant
     @Published var pasteAtCursor: Bool
     @Published var decodingTopK: Int
     @Published var decodingTemperature: Float
@@ -83,7 +83,7 @@ final class AppState: ObservableObject {
         self.autoProofread = enabled
     }
 
-    func setChineseVariant(_ variant: String) {
+    func setChineseVariant(_ variant: ChineseVariant) {
         settings.chineseVariant = variant
         self.chineseVariant = variant
     }

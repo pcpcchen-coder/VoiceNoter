@@ -35,11 +35,11 @@ struct MenuBarView: View {
 
             Divider()
 
-            Button(state.chineseVariant == "zh-Hant" ? "✓ 繁體中文" : "　繁體中文") {
-                state.setChineseVariant("zh-Hant")
+            Button(state.chineseVariant == .traditional ? "✓ 繁體中文" : "　繁體中文") {
+                state.setChineseVariant(.traditional)
             }
-            Button(state.chineseVariant == "zh-Hans" ? "✓ 簡體中文" : "　簡體中文") {
-                state.setChineseVariant("zh-Hans")
+            Button(state.chineseVariant == .simplified ? "✓ 簡體中文" : "　簡體中文") {
+                state.setChineseVariant(.simplified)
             }
 
             Divider()

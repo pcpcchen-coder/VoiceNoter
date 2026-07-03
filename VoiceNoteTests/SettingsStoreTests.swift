@@ -82,7 +82,7 @@ final class SettingsStoreTests: XCTestCase {
     }
 
     func test_chineseVariant_defaultsToTraditional() {
-        XCTAssertEqual(makeStore().chineseVariant, "zh-Hant")
+        XCTAssertEqual(makeStore().chineseVariant, .traditional)
     }
 
     func test_pasteAtCursor_defaultsToTrue() {
@@ -106,8 +106,15 @@ final class SettingsStoreTests: XCTestCase {
 
     func test_chineseVariant_roundTrip() {
         let store = makeStore()
-        store.chineseVariant = "zh-Hans"
-        XCTAssertEqual(store.chineseVariant, "zh-Hans")
+        store.chineseVariant = .simplified
+        XCTAssertEqual(store.chineseVariant, .simplified)
+    }
+
+    /// 鎖住持久化格式：底層 defaults 必須存 raw value 字串，確保與舊版相容。
+    func test_chineseVariant_persistsAsLegacyRawString() {
+        let store = makeStore()
+        store.chineseVariant = .simplified
+        XCTAssertEqual(defaults.string(forKey: "chineseVariant"), "zh-Hans")
     }
 
     func test_pasteAtCursor_roundTrip() {

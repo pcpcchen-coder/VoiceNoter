@@ -28,7 +28,6 @@ final class SettingsStore {
     // MARK: - 預設值
 
     static let defaultModel = "openai_whisper-large-v3_turbo"
-    static let defaultChineseVariant = "zh-Hant"
     static let defaultTopK = 5
     static let defaultTemperature: Float = 0.0
     static let defaultFallbackCount = 5
@@ -67,11 +66,11 @@ final class SettingsStore {
         set { defaults.set(newValue, forKey: Key.autoProofread.rawValue) }
     }
 
-    /// 中文字形（`"zh-Hant"` / `"zh-Hans"`）。預設繁體。
-    /// （Step 3 會升級為 `ChineseVariant` 型別，raw value 維持相容。）
-    var chineseVariant: String {
-        get { defaults.string(forKey: Key.chineseVariant.rawValue) ?? Self.defaultChineseVariant }
-        set { defaults.set(newValue, forKey: Key.chineseVariant.rawValue) }
+    /// 中文字形。預設繁體。持久化格式為 `ChineseVariant` 的 raw value 字串，
+    /// 與舊版儲存相容。
+    var chineseVariant: ChineseVariant {
+        get { ChineseVariant(rawValueOrDefault: defaults.string(forKey: Key.chineseVariant.rawValue)) }
+        set { defaults.set(newValue.rawValue, forKey: Key.chineseVariant.rawValue) }
     }
 
     /// 辨識後是否自動貼到游標位置。預設開啟。
