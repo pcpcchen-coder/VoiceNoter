@@ -33,36 +33,4 @@ enum Paths {
             }
         }
     }
-
-    /// First-launch bootstrap: copy bundled default_glossary.txt into Application Support.
-    static func bootstrapGlossaryIfNeeded() {
-        let fm = FileManager.default
-        guard !fm.fileExists(atPath: glossaryFile.path) else { return }
-
-        guard let bundled = Bundle.main.url(forResource: "default_glossary", withExtension: "txt") else {
-            Log.app.error("default_glossary.txt missing from bundle")
-            return
-        }
-
-        do {
-            try fm.copyItem(at: bundled, to: glossaryFile)
-            Log.app.info("Bootstrapped glossary at \(glossaryFile.path, privacy: .public)")
-        } catch {
-            Log.app.error("Failed to bootstrap glossary: \(error.localizedDescription, privacy: .public)")
-        }
-    }
-
-    /// Reads glossary terms (one per line) and joins with comma for WhisperKit initial prompt.
-    /// `url` defaults to the production glossary path; tests pass a custom URL.
-    static func readGlossaryAsPrompt(from url: URL = Paths.glossaryFile) -> String? {
-        guard let contents = try? String(contentsOf: url, encoding: .utf8) else {
-            return nil
-        }
-        let terms = contents
-            .split(whereSeparator: \.isNewline)
-            .map { $0.trimmingCharacters(in: .whitespaces) }
-            .filter { !$0.isEmpty }
-        guard !terms.isEmpty else { return nil }
-        return terms.joined(separator: ", ")
-    }
 }

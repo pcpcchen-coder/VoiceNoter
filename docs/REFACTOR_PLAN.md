@@ -319,7 +319,10 @@ WhisperKit 需要下載模型且依賴 CoreML，**單元測試一律不碰真模
 1. 新增 `Core/GlossaryStore.swift`：
    ```swift
    struct GlossaryStore {
-       init(fileURL: URL = Paths.glossaryFile, bundle: Bundle = .main)
+       // 註（Step 5 實作）：改用 defaultSource: URL? 注入而非 bundle: Bundle，
+       // 以便測試直接注入 temp 來源檔，避免在 macOS 偽造 bundle 資源查找。
+       init(fileURL: URL = Paths.glossaryFile,
+            defaultSource: URL? = Bundle.main.url(forResource: "default_glossary", withExtension: "txt"))
        func bootstrapIfNeeded()
        func prompt() -> String?   // 逗號串接的 initialPrompt
    }

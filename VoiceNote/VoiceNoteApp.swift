@@ -9,7 +9,7 @@ struct VoiceNoteApp: App {
     @MainActor
     init() {
         Paths.ensureDirectoriesExist()
-        Paths.bootstrapGlossaryIfNeeded()
+        GlossaryStore().bootstrapIfNeeded()
         let appState = AppState.shared
         _state = StateObject(wrappedValue: appState)
         _coordinator = StateObject(wrappedValue: RecordingCoordinator(state: appState))
@@ -44,6 +44,7 @@ final class RecordingCoordinator: ObservableObject {
     private let recorder = AudioRecorder()
     private let transcription = TranscriptionService()
     private let noteStore: NoteStoring = FileNoteStore()
+    private let glossary = GlossaryStore()
     private var hotkey: HotkeyManager!
     private var warmupTask: Task<Void, Never>?
     private var maxDurationGuard: Task<Void, Never>?
@@ -197,7 +198,7 @@ final class RecordingCoordinator: ObservableObject {
         defer { try? FileManager.default.removeItem(at: audioURL) }
 
         do {
-            let prompt = Paths.readGlossaryAsPrompt()
+            let prompt = glossary.prompt()
             let text = try await transcription.transcribe(
                 audioURL: audioURL,
                 prompt: prompt,
