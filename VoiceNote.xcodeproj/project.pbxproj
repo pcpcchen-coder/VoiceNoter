@@ -11,7 +11,6 @@
 		1A0000000000000000000082 /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000000000000000000050 /* AppState.swift */; };
 		1A0000000000000000000083 /* AudioRecorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000000000000000000051 /* AudioRecorder.swift */; };
 		1A0000000000000000000084 /* TranscriptionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000000000000000000052 /* TranscriptionService.swift */; };
-		1A0000000000000000000085 /* NoteWriter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000000000000000000053 /* NoteWriter.swift */; };
 		1A0000000000000000000086 /* HotkeyManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000000000000000000054 /* HotkeyManager.swift */; };
 		1A0000000000000000000087 /* Paths.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000000000000000000055 /* Paths.swift */; };
 		1A0000000000000000000088 /* MenuBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000000000000000000060 /* MenuBarView.swift */; };
@@ -21,14 +20,18 @@
 		1A000000000000000000008C /* PermissionHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000000000000000000071 /* PermissionHelper.swift */; };
 		1A000000000000000000008D /* SettingsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000000000000000000056 /* SettingsStore.swift */; };
 		1A000000000000000000008E /* TranscriptPostProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000000000000000000058 /* TranscriptPostProcessor.swift */; };
+		1A000000000000000000008F /* NoteFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A000000000000000000005A /* NoteFormatter.swift */; };
+		1A0000000000000000000093 /* NoteStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A000000000000000000005B /* NoteStore.swift */; };
+		1A0000000000000000000094 /* TranscriptDeliverer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A000000000000000000005D /* TranscriptDeliverer.swift */; };
 		1A0000000000000000000090 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1A0000000000000000000044 /* Assets.xcassets */; };
 		1A0000000000000000000091 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1A0000000000000000000045 /* Preview Assets.xcassets */; };
 		1A0000000000000000000092 /* default_glossary.txt in Resources */ = {isa = PBXBuildFile; fileRef = 1A0000000000000000000046 /* default_glossary.txt */; };
 		1A00000000000000000000A0 /* WhisperKit in Frameworks */ = {isa = PBXBuildFile; productRef = 1A0000000000000000000032 /* WhisperKit */; };
 		1A00000000000000000000A1 /* KeyboardShortcuts in Frameworks */ = {isa = PBXBuildFile; productRef = 1A0000000000000000000033 /* KeyboardShortcuts */; };
 		1A0000000000000000000221 /* PathsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000000000000000000211 /* PathsTests.swift */; };
-		1A0000000000000000000222 /* NoteWriterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000000000000000000212 /* NoteWriterTests.swift */; };
 		1A0000000000000000000223 /* AppStateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000000000000000000213 /* AppStateTests.swift */; };
+		1A0000000000000000000226 /* NoteFormatterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000000000000000000216 /* NoteFormatterTests.swift */; };
+		1A0000000000000000000227 /* FileNoteStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000000000000000000217 /* FileNoteStoreTests.swift */; };
 		1A0000000000000000000224 /* SettingsStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000000000000000000214 /* SettingsStoreTests.swift */; };
 		1A0000000000000000000225 /* TranscriptPostProcessorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000000000000000000215 /* TranscriptPostProcessorTests.swift */; };
 		AF24760D2FA74533003FBF7C /* OpenAIOAuthManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF24760C2FA74533003FBF7C /* OpenAIOAuthManager.swift */; };
@@ -57,8 +60,10 @@
 		1A0000000000000000000050 /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
 		1A0000000000000000000051 /* AudioRecorder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioRecorder.swift; sourceTree = "<group>"; };
 		1A0000000000000000000052 /* TranscriptionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptionService.swift; sourceTree = "<group>"; };
-		1A0000000000000000000053 /* NoteWriter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteWriter.swift; sourceTree = "<group>"; };
 		1A0000000000000000000054 /* HotkeyManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotkeyManager.swift; sourceTree = "<group>"; };
+		1A000000000000000000005A /* NoteFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteFormatter.swift; sourceTree = "<group>"; };
+		1A000000000000000000005B /* NoteStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteStore.swift; sourceTree = "<group>"; };
+		1A000000000000000000005D /* TranscriptDeliverer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptDeliverer.swift; sourceTree = "<group>"; };
 		1A0000000000000000000055 /* Paths.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Paths.swift; sourceTree = "<group>"; };
 		1A0000000000000000000056 /* SettingsStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsStore.swift; sourceTree = "<group>"; };
 		1A0000000000000000000058 /* TranscriptPostProcessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptPostProcessor.swift; sourceTree = "<group>"; };
@@ -69,8 +74,9 @@
 		1A0000000000000000000071 /* PermissionHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PermissionHelper.swift; sourceTree = "<group>"; };
 		1A0000000000000000000201 /* VoiceNoteTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VoiceNoteTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		1A0000000000000000000211 /* PathsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PathsTests.swift; sourceTree = "<group>"; };
-		1A0000000000000000000212 /* NoteWriterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteWriterTests.swift; sourceTree = "<group>"; };
 		1A0000000000000000000213 /* AppStateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppStateTests.swift; sourceTree = "<group>"; };
+		1A0000000000000000000216 /* NoteFormatterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteFormatterTests.swift; sourceTree = "<group>"; };
+		1A0000000000000000000217 /* FileNoteStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileNoteStoreTests.swift; sourceTree = "<group>"; };
 		1A0000000000000000000214 /* SettingsStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsStoreTests.swift; sourceTree = "<group>"; };
 		1A0000000000000000000215 /* TranscriptPostProcessorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptPostProcessorTests.swift; sourceTree = "<group>"; };
 		AF24760C2FA74533003FBF7C /* OpenAIOAuthManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenAIOAuthManager.swift; sourceTree = "<group>"; };
@@ -140,14 +146,32 @@
 				1A0000000000000000000050 /* AppState.swift */,
 				1A0000000000000000000051 /* AudioRecorder.swift */,
 				1A0000000000000000000052 /* TranscriptionService.swift */,
-				1A0000000000000000000053 /* NoteWriter.swift */,
 				1A0000000000000000000054 /* HotkeyManager.swift */,
 				1A0000000000000000000055 /* Paths.swift */,
 				1A0000000000000000000056 /* SettingsStore.swift */,
 				1A0000000000000000000057 /* Transcription */,
+				1A0000000000000000000059 /* Notes */,
+				1A000000000000000000005C /* Output */,
 				AF8400992FA740090004DAAA /* AIRewriter.swift */,
 			);
 			path = Core;
+			sourceTree = "<group>";
+		};
+		1A0000000000000000000059 /* Notes */ = {
+			isa = PBXGroup;
+			children = (
+				1A000000000000000000005A /* NoteFormatter.swift */,
+				1A000000000000000000005B /* NoteStore.swift */,
+			);
+			path = Notes;
+			sourceTree = "<group>";
+		};
+		1A000000000000000000005C /* Output */ = {
+			isa = PBXGroup;
+			children = (
+				1A000000000000000000005D /* TranscriptDeliverer.swift */,
+			);
+			path = Output;
 			sourceTree = "<group>";
 		};
 		1A0000000000000000000057 /* Transcription */ = {
@@ -197,10 +221,11 @@
 			isa = PBXGroup;
 			children = (
 				1A0000000000000000000211 /* PathsTests.swift */,
-				1A0000000000000000000212 /* NoteWriterTests.swift */,
 				1A0000000000000000000213 /* AppStateTests.swift */,
 				1A0000000000000000000214 /* SettingsStoreTests.swift */,
 				1A0000000000000000000215 /* TranscriptPostProcessorTests.swift */,
+				1A0000000000000000000216 /* NoteFormatterTests.swift */,
+				1A0000000000000000000217 /* FileNoteStoreTests.swift */,
 			);
 			path = VoiceNoteTests;
 			sourceTree = "<group>";
@@ -325,7 +350,9 @@
 				1A0000000000000000000082 /* AppState.swift in Sources */,
 				1A0000000000000000000083 /* AudioRecorder.swift in Sources */,
 				1A0000000000000000000084 /* TranscriptionService.swift in Sources */,
-				1A0000000000000000000085 /* NoteWriter.swift in Sources */,
+				1A000000000000000000008F /* NoteFormatter.swift in Sources */,
+				1A0000000000000000000093 /* NoteStore.swift in Sources */,
+				1A0000000000000000000094 /* TranscriptDeliverer.swift in Sources */,
 				1A0000000000000000000086 /* HotkeyManager.swift in Sources */,
 				1A000000000000000000008A /* StatusIcon.swift in Sources */,
 				1A0000000000000000000088 /* MenuBarView.swift in Sources */,
@@ -341,10 +368,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				1A0000000000000000000221 /* PathsTests.swift in Sources */,
-				1A0000000000000000000222 /* NoteWriterTests.swift in Sources */,
 				1A0000000000000000000223 /* AppStateTests.swift in Sources */,
 				1A0000000000000000000224 /* SettingsStoreTests.swift in Sources */,
 				1A0000000000000000000225 /* TranscriptPostProcessorTests.swift in Sources */,
+				1A0000000000000000000226 /* NoteFormatterTests.swift in Sources */,
+				1A0000000000000000000227 /* FileNoteStoreTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

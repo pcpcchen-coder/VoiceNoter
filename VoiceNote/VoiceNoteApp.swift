@@ -34,7 +34,7 @@ struct VoiceNoteApp: App {
     }
 }
 
-/// Wires hotkey events to AudioRecorder → TranscriptionService → NoteWriter,
+/// Wires hotkey events to AudioRecorder → TranscriptionService → NoteStore,
 /// and reflects progress back into AppState. Single instance owned by the App.
 @MainActor
 final class RecordingCoordinator: ObservableObject {
@@ -43,6 +43,7 @@ final class RecordingCoordinator: ObservableObject {
     private let state: AppState
     private let recorder = AudioRecorder()
     private let transcription = TranscriptionService()
+    private let noteStore: NoteStoring = FileNoteStore()
     private var hotkey: HotkeyManager!
     private var warmupTask: Task<Void, Never>?
     private var maxDurationGuard: Task<Void, Never>?
@@ -207,16 +208,16 @@ final class RecordingCoordinator: ObservableObject {
             )
             state.lastTranscript = text
             if state.pasteAtCursor {
-                NoteWriter.pasteAtCursor(text)
+                TranscriptDeliverer.pasteAtCursor(text)
             } else {
-                NoteWriter.copyToPasteboard(text)
+                TranscriptDeliverer.copyToPasteboard(text)
             }
-            try NoteWriter.append(transcript: text)
-            
+            try noteStore.append(transcript: text, at: Date())
+
             if state.autoProofread {
                 do {
                     let proofread = try await AIRewriter.rewrite(text)
-                    let noteURL = NoteWriter.todayNoteURL()
+                    let noteURL = noteStore.todayNoteURL(now: Date())
                     if var fileContent = try? String(contentsOf: noteURL, encoding: .utf8) {
                         if let range = fileContent.range(of: text, options: .backwards) {
                             fileContent.replaceSubrange(range, with: proofread)
@@ -230,7 +231,7 @@ final class RecordingCoordinator: ObservableObject {
             }
             
             if text.contains("幫我整理") || text.contains("請整理") {
-                let noteURL = NoteWriter.todayNoteURL()
+                let noteURL = noteStore.todayNoteURL(now: Date())
                 if let original = try? String(contentsOf: noteURL), !original.isEmpty {
                     Task { @MainActor in
                         do {

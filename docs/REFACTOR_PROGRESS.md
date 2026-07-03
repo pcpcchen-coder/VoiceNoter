@@ -35,7 +35,7 @@ Claude（或任何執行者）必須遵守以下守則：
 | 1 | 建立 CI 與測試基準線 | ✅ | 2026-07-03 | `51195ed` | CI workflow + `scripts/test.sh` 就緒；scheme 測試 action 本已正確無需改。[CI run #1](https://github.com/pcpcchen-coder/VoiceNoter/actions/runs/28639522161) **綠燈確認**（success，含既有 3 個測試檔） |
 | 2 | `SettingsStore`：設定集中化與可注入 | ✅ | 2026-07-03 | `<this>` | 新增 `SettingsStore`（可注入 `UserDefaults`）與 18 個測試；`AppState` 改建構子注入、移除全部 UserDefaults 字面量；`AppStateTests` 改用隔離 suite 不再碰 shared（解 T2）。`chineseVariant` 暫留 `String`，Step 3 升級為 `ChineseVariant` |
 | 3 | `TranscriptPostProcessor`：繁簡轉換純函式化 | ✅ | 2026-07-03 | `<this>` | 新增 `Core/Transcription/` 群組與 `TranscriptPostProcessor`（含 `ChineseVariant` 型別）；轉錄的 join/trim/empty/繁簡轉換抽成純函式並加 8 個測試；`chineseVariant` 全鏈升級為 `ChineseVariant`（SettingsStore/AppState/MenuBarView/TranscriptionService），持久化維持 raw string 相容。DoD 達成：StringTransform 與繁簡字面量只存在於 ChineseVariant 定義 |
-| 4 | `NoteWriter` 拆分：Formatter + Store + 系統動作 | ⬜ | | | |
+| 4 | `NoteWriter` 拆分：Formatter + Store + 系統動作 | ✅ | 2026-07-03 | `<this>` | `NoteWriter` 拆成 `Core/Notes/NoteFormatter`（純格式）、`Core/Notes/NoteStore`（`NoteStoring` protocol + `FileNoteStore`，含拋錯的 `replaceLastEntry`）、`Core/Output/TranscriptDeliverer`（剪貼簿/貼上/開檔）；既有 6 個筆記測試遷入 `FileNoteStoreTests` + 3 純函式測試於 `NoteFormatterTests`；刪除 `NoteWriter.swift`/`NoteWriterTests.swift`。coordinator 的校稿字串手術暫維持原狀（Step 11 才用 replaceLastEntry 修 B4） |
 | 5 | `GlossaryStore`：詞表模組化 | ⬜ | | | |
 | 6 | `Transcribing` 協定與模型快取集中 | ⬜ | | | |
 | 7 | `OpenAIRewriter` 重構 | ⬜ | | | |
@@ -78,3 +78,5 @@ Claude（或任何執行者）必須遵守以下守則：
 | 2026-07-03 | — | 建立本計畫；「幫我整理」改為追加段落而非整檔覆蓋（見 Step 11 行為決策） | 原實作有資料遺失風險（B3） |
 | 2026-07-03 | 2 | `SettingsStore.chineseVariant` 維持 `String`，不在本步升級為 `ChineseVariant` | 型別化屬於 Step 3 範圍，避免夾帶（守則 4） |
 | 2026-07-03 | 2 | 專案未用 Xcode 檔案系統同步群組，新 `.swift` 檔以手動 6 處編輯登記進 `project.pbxproj`（比照 `Paths.swift`） | 否則新檔不會被編譯 |
+| 2026-07-03 | 4 | `NoteWriter.revealInFinder`（D4 死碼）隨 `NoteWriter.swift` 刪除一併移除，未遷入 `TranscriptDeliverer` | 無任何呼叫端；為死碼遷移只為 Step 9 再刪除無意義 |
+| 2026-07-03 | 4 | coordinator 尚未做依賴注入（Step 10），暫以 `FileNoteStore()`／`TranscriptDeliverer` 靜態方法直接呼叫；MenuBarView 亦以 `FileNoteStore()` 取當日路徑 | 保持本步為純搬移、行為不變；DI 屬 Step 10 範圍 |

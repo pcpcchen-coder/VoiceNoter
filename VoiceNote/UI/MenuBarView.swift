@@ -29,7 +29,7 @@ struct MenuBarView: View {
 
             if !state.lastTranscript.isEmpty {
                 Button("最近：\(previewSnippet(state.lastTranscript))") {
-                    NoteWriter.openInDefaultApp(NoteWriter.todayNoteURL())
+                    TranscriptDeliverer.openInDefaultApp(todayNoteURL)
                 }
             }
 
@@ -45,7 +45,7 @@ struct MenuBarView: View {
             Divider()
 
             Button("開啟今日筆記") {
-                NoteWriter.openInDefaultApp(NoteWriter.todayNoteURL())
+                TranscriptDeliverer.openInDefaultApp(todayNoteURL)
             }
             Button("在 Finder 顯示筆記資料夾") {
                 NSWorkspace.shared.activateFileViewerSelecting([Paths.notesDirectory])
@@ -61,6 +61,11 @@ struct MenuBarView: View {
                 NSApplication.shared.terminate(nil)
             }
         }
+    }
+
+    /// 當日筆記檔路徑（用正式筆記目錄）。Step 10 依賴注入後改由 store 提供。
+    private var todayNoteURL: URL {
+        FileNoteStore().todayNoteURL()
     }
 
     private var statusLine: String {
