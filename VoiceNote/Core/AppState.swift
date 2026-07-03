@@ -24,7 +24,8 @@ final class AppState: ObservableObject {
     static let shared = AppState()
 
     /// 設定持久化來源。所有 `setXxx` 都會先寫入這裡再更新對應的 `@Published`。
-    private let settings: SettingsStore
+    /// 對外可讀，供 coordinator 組 `DecodingSettings` 與存取模型路徑快取（Step 10 改為顯式注入）。
+    let settings: SettingsStore
 
     @Published var state: RecorderState = .idle
     @Published var lastTranscript: String = ""

@@ -140,4 +140,24 @@ final class SettingsStoreTests: XCTestCase {
         store.decodingFallbackCount = 3
         XCTAssertEqual(store.decodingFallbackCount, 3)
     }
+
+    // MARK: - 模型路徑快取
+
+    func test_modelFolderPath_roundTrip() {
+        let store = makeStore()
+        XCTAssertNil(store.modelFolderPath(for: "openai_whisper-small"))
+
+        store.setModelFolderPath("/models/small", for: "openai_whisper-small")
+
+        XCTAssertEqual(store.modelFolderPath(for: "openai_whisper-small"), "/models/small")
+    }
+
+    func test_modelFolderPath_isNamespacedPerModel() {
+        let store = makeStore()
+        store.setModelFolderPath("/models/small", for: "openai_whisper-small")
+        store.setModelFolderPath("/models/large", for: "openai_whisper-large-v3")
+
+        XCTAssertEqual(store.modelFolderPath(for: "openai_whisper-small"), "/models/small")
+        XCTAssertEqual(store.modelFolderPath(for: "openai_whisper-large-v3"), "/models/large")
+    }
 }

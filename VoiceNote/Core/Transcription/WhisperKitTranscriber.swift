@@ -15,19 +15,24 @@ enum TranscriptionError: LocalizedError {
     }
 }
 
-/// Wraps WhisperKit. `warmup` instantiates and downloads the model if needed.
-final class TranscriptionService {
+/// `Transcribing` 的 WhisperKit 實作。`warmup` 會（如需要）下載並載入模型。
+///
+/// 模型路徑快取透過注入的 `SettingsStore` 存取，快取 key 的組字集中在 `SettingsStore`。
+final class WhisperKitTranscriber: Transcribing {
     private var whisperKit: WhisperKit?
     private(set) var loadedModel: String?
+    private let settings: SettingsStore
+
+    init(settings: SettingsStore = SettingsStore()) {
+        self.settings = settings
+    }
 
     var isReady: Bool { whisperKit != nil }
 
-    /// Call once at app launch (or when the user changes models).
+    /// App 啟動時（或使用者換模型時）呼叫。
     /// - Parameters:
-    ///   - modelName: e.g. `large-v3-turbo`
-    ///   - onProgress: invoked for download progress in `[0, 1]`. Always invoked on @MainActor.
-    private static let modelPathPrefix = "whisperkit_model_path_"
-
+    ///   - modelName: e.g. `openai_whisper-large-v3_turbo`
+    ///   - onProgress: 下載進度 `[0, 1]`，一律在 `@MainActor` 觸發。
     func warmup(
         modelName: String,
         onProgress: @MainActor @escaping (Double) -> Void,
@@ -36,10 +41,9 @@ final class TranscriptionService {
         Log.transcription.info("Warming up WhisperKit model=\(modelName, privacy: .public)")
 
         do {
-            let cacheKey = Self.modelPathPrefix + modelName
             let modelFolder: URL
 
-            if let cachedPath = UserDefaults.standard.string(forKey: cacheKey),
+            if let cachedPath = settings.modelFolderPath(for: modelName),
                FileManager.default.fileExists(atPath: cachedPath) {
                 Log.transcription.info("Using cached model at \(cachedPath, privacy: .public)")
                 modelFolder = URL(fileURLWithPath: cachedPath)
@@ -52,7 +56,7 @@ final class TranscriptionService {
                         onProgress(progress.fractionCompleted * 0.8)
                     }
                 }
-                UserDefaults.standard.set(modelFolder.path, forKey: cacheKey)
+                settings.setModelFolderPath(modelFolder.path, for: modelName)
                 Log.transcription.info("Model downloaded to \(modelFolder.path, privacy: .public)")
             }
             await onLoadingStarted()
@@ -75,31 +79,24 @@ final class TranscriptionService {
         }
     }
 
-    /// Transcribe a 16kHz mono PCM WAV file to text.
-    /// `prompt` is best-effort: if the loaded tokenizer can't encode it, we silently skip it.
-    func transcribe(
-        audioURL: URL,
-        prompt: String?,
-        chineseVariant: ChineseVariant = .traditional,
-        topK: Int = 5,
-        temperature: Float = 0.0,
-        temperatureFallbackCount: Int = 5
-    ) async throws -> String {
+    /// 轉錄一段 16kHz mono PCM WAV。
+    /// `settings.prompt` 為 best-effort：若 tokenizer 無法編碼就靜默略過。
+    func transcribe(audioURL: URL, settings decoding: DecodingSettings) async throws -> String {
         guard let kit = whisperKit else {
             throw TranscriptionError.notReady
         }
 
         var options = DecodingOptions()
-        options.language = "zh"
+        options.language = decoding.language
         options.task = .transcribe
-        options.temperature = temperature
-        options.topK = topK
-        options.temperatureFallbackCount = temperatureFallbackCount
+        options.temperature = decoding.temperature
+        options.topK = decoding.topK
+        options.temperatureFallbackCount = decoding.temperatureFallbackCount
         options.usePrefillPrompt = true
         options.skipSpecialTokens = true
         options.withoutTimestamps = true
 
-        if let prompt, !prompt.isEmpty,
+        if let prompt = decoding.prompt, !prompt.isEmpty,
            let tokens = encodePrompt(prompt, with: kit) {
             options.promptTokens = tokens
         }
@@ -112,7 +109,7 @@ final class TranscriptionService {
 
             guard let text = TranscriptPostProcessor.process(
                 segments: results.map { $0.text },
-                variant: chineseVariant
+                variant: decoding.variant
             ) else {
                 throw TranscriptionError.empty
             }
@@ -129,8 +126,6 @@ final class TranscriptionService {
     /// expose the tokenizer slightly differently; if anything goes wrong we just
     /// drop the prompt rather than failing the transcription.
     private func encodePrompt(_ text: String, with kit: WhisperKit) -> [Int]? {
-        // WhisperKit 0.9.x exposes `tokenizer` on the pipeline. The exact protocol
-        // shape changes between minor versions, so we keep this defensive.
         guard let tokenizer = kit.tokenizer else { return nil }
         let encoded = tokenizer.encode(text: " " + text)
         return encoded.isEmpty ? nil : encoded

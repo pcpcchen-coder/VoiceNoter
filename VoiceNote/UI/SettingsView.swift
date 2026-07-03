@@ -213,8 +213,7 @@ struct SettingsView: View {
                         downloadProgress = progress.fractionCompleted
                     }
                 }
-                let cacheKey = "whisperkit_model_path_\(state.selectedModel)"
-                UserDefaults.standard.set(modelFolder.path, forKey: cacheKey)
+                state.settings.setModelFolderPath(modelFolder.path, for: state.selectedModel)
                 isDownloading = false
                 downloadStatus = "模型已下載完成，重啟 App 即可使用。"
             } catch {

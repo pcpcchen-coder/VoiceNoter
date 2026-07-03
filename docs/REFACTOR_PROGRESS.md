@@ -37,7 +37,7 @@ Claude（或任何執行者）必須遵守以下守則：
 | 3 | `TranscriptPostProcessor`：繁簡轉換純函式化 | ✅ | 2026-07-03 | `<this>` | 新增 `Core/Transcription/` 群組與 `TranscriptPostProcessor`（含 `ChineseVariant` 型別）；轉錄的 join/trim/empty/繁簡轉換抽成純函式並加 8 個測試；`chineseVariant` 全鏈升級為 `ChineseVariant`（SettingsStore/AppState/MenuBarView/TranscriptionService），持久化維持 raw string 相容。DoD 達成：StringTransform 與繁簡字面量只存在於 ChineseVariant 定義 |
 | 4 | `NoteWriter` 拆分：Formatter + Store + 系統動作 | ✅ | 2026-07-03 | `<this>` | `NoteWriter` 拆成 `Core/Notes/NoteFormatter`（純格式）、`Core/Notes/NoteStore`（`NoteStoring` protocol + `FileNoteStore`，含拋錯的 `replaceLastEntry`）、`Core/Output/TranscriptDeliverer`（剪貼簿/貼上/開檔）；既有 6 個筆記測試遷入 `FileNoteStoreTests` + 3 純函式測試於 `NoteFormatterTests`；刪除 `NoteWriter.swift`/`NoteWriterTests.swift`。coordinator 的校稿字串手術暫維持原狀（Step 11 才用 replaceLastEntry 修 B4） |
 | 5 | `GlossaryStore`：詞表模組化 | ✅ | 2026-07-03 | `<this>` | 新增 `Core/GlossaryStore.swift`（`bootstrapIfNeeded` + `prompt`），自 `Paths` 遷出；`Paths` 只剩路徑常量與 `ensureDirectoriesExist`（DoD 達成）；4 個 glossary 測試自 `PathsTests` 遷入 `GlossaryStoreTests` 並加 3 個 bootstrap 測試；`VoiceNoteApp` 改用 `GlossaryStore`。**Phase 1 完成** |
-| 6 | `Transcribing` 協定與模型快取集中 | ⬜ | | | |
+| 6 | `Transcribing` 協定與模型快取集中 | ✅ | 2026-07-03 | `<this>` | 新增 `Transcribing` 協定 + `DecodingSettings`（值型別，`init(settings:prompt:)`）；`TranscriptionService`→`WhisperKitTranscriber` 移入 `Core/Transcription/` 並 conform，6 參數 transcribe 收斂為 `DecodingSettings`；模型路徑快取集中到 `SettingsStore.modelFolderPath(for:)`；新增 `MockTranscriber`（Mocks 群組）+ `DecodingSettingsTests` + 2 個快取測試。DoD 達成：`whisperkit_model_path` 只在 SettingsStore、`import WhisperKit` 只在 WhisperKitTranscriber/SettingsView。**Phase 2 起步** |
 | 7 | `OpenAIRewriter` 重構 | ⬜ | | | |
 | 8 | `CredentialStore`：API Key 移入 Keychain | ⬜ | | | |
 | 9 | 死碼大掃除 | ⬜ | | | |
@@ -81,3 +81,5 @@ Claude（或任何執行者）必須遵守以下守則：
 | 2026-07-03 | 4 | `NoteWriter.revealInFinder`（D4 死碼）隨 `NoteWriter.swift` 刪除一併移除，未遷入 `TranscriptDeliverer` | 無任何呼叫端；為死碼遷移只為 Step 9 再刪除無意義 |
 | 2026-07-03 | 4 | coordinator 尚未做依賴注入（Step 10），暫以 `FileNoteStore()`／`TranscriptDeliverer` 靜態方法直接呼叫；MenuBarView 亦以 `FileNoteStore()` 取當日路徑 | 保持本步為純搬移、行為不變；DI 屬 Step 10 範圍 |
 | 2026-07-03 | 5 | `GlossaryStore` 建構子改用 `defaultSource: URL?`（預設 `Bundle.main` 查找）而非計畫原訂的 `bundle: Bundle` | 用 Bundle 注入來測 bootstrap 需在 macOS 偽造 bundle 資源查找，脆弱不可靠；改注入來源 URL 可直接用 temp 檔測試，行為不變。已同步更新 `REFACTOR_PLAN.md` Step 5 |
+| 2026-07-03 | 6 | `AppState.settings` 由 `private` 改為 internal `let`，供 coordinator/SettingsView 組 `DecodingSettings` 與存取模型快取 | Step 10 會把 settings 改為對 coordinator 顯式注入；本步先開放讀取，避免重複建立 SettingsStore 實例 |
+| 2026-07-03 | 6 | `WhisperKitTranscriber(settings:)` 注入 SettingsStore 以存取模型路徑快取；coordinator 以 `state.settings` 傳入 | 讓快取與 AppState 用同一 store；預設參數 `SettingsStore()` 亦指向 standard，行為不變 |

@@ -96,4 +96,19 @@ final class SettingsStore {
         get { defaults.object(forKey: Key.decodingFallbackCount.rawValue) as? Int ?? Self.defaultFallbackCount }
         set { defaults.set(newValue, forKey: Key.decodingFallbackCount.rawValue) }
     }
+
+    // MARK: - 模型路徑快取
+
+    /// 每個模型的本地路徑快取 key 前綴。這是全案唯一組這個 key 的地方。
+    private static let modelPathPrefix = "whisperkit_model_path_"
+
+    /// 讀取某模型已下載的本地路徑，未快取則回傳 `nil`。
+    func modelFolderPath(for modelName: String) -> String? {
+        defaults.string(forKey: Self.modelPathPrefix + modelName)
+    }
+
+    /// 記錄某模型下載後的本地路徑。
+    func setModelFolderPath(_ path: String, for modelName: String) {
+        defaults.set(path, forKey: Self.modelPathPrefix + modelName)
+    }
 }

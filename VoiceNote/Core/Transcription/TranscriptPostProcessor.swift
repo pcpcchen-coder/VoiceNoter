@@ -24,7 +24,7 @@ enum ChineseVariant: String, CaseIterable {
 
 /// 將 WhisperKit 的原始 segment 陣列整理成最終輸出文字。
 ///
-/// 這是一段無副作用的純函式邏輯，從 `TranscriptionService` 抽出，方便單元測試：
+/// 這是一段無副作用的純函式邏輯，從 `WhisperKitTranscriber` 抽出，方便單元測試：
 /// 串接 → 去頭尾空白 → 空字串回傳 `nil` → 依字形做繁簡轉換。
 enum TranscriptPostProcessor {
     /// - Parameters:

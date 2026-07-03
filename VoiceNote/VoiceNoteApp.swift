@@ -34,7 +34,7 @@ struct VoiceNoteApp: App {
     }
 }
 
-/// Wires hotkey events to AudioRecorder → TranscriptionService → NoteStore,
+/// Wires hotkey events to AudioRecorder → WhisperKitTranscriber → NoteStore,
 /// and reflects progress back into AppState. Single instance owned by the App.
 @MainActor
 final class RecordingCoordinator: ObservableObject {
@@ -42,7 +42,7 @@ final class RecordingCoordinator: ObservableObject {
 
     private let state: AppState
     private let recorder = AudioRecorder()
-    private let transcription = TranscriptionService()
+    private let transcriber: Transcribing
     private let noteStore: NoteStoring = FileNoteStore()
     private let glossary = GlossaryStore()
     private var hotkey: HotkeyManager!
@@ -52,6 +52,7 @@ final class RecordingCoordinator: ObservableObject {
 
     init(state: AppState) {
         self.state = state
+        self.transcriber = WhisperKitTranscriber(settings: state.settings)
         self.hotkey = HotkeyManager(
             onPress: { [weak self] in self?.handlePress() },
             onRelease: { [weak self] in self?.handleRelease() }
@@ -79,7 +80,7 @@ final class RecordingCoordinator: ObservableObject {
         state.lastError = nil
         state.state = .downloadingModel(progress: 0)
         do {
-            try await transcription.warmup(
+            try await transcriber.warmup(
                 modelName: modelName,
                 onProgress: { [weak self] progress in
                     guard let self else { return }
@@ -103,7 +104,7 @@ final class RecordingCoordinator: ObservableObject {
             // Use a soft failure so the icon stays in the normal "mic" look — the spec
             // reserves the gray icon for a denied microphone permission. The retry
             // button is gated by `modelLoadFailed`, and `handlePress()` blocks recording
-            // while `transcription.isReady == false`.
+            // while `transcriber.isReady == false`.
             modelLoadFailed = true
             state.noteSoftFailure("模型初始化失敗：\(error.localizedDescription)")
         }
@@ -121,7 +122,7 @@ final class RecordingCoordinator: ObservableObject {
         }
 
         // Model not ready yet — fail fast so the user isn't surprised at transcribe time.
-        if !transcription.isReady {
+        if !transcriber.isReady {
             if modelLoadFailed {
                 state.noteSoftFailure("模型尚未載入，請點擊「重試模型載入」")
             } else {
@@ -198,15 +199,8 @@ final class RecordingCoordinator: ObservableObject {
         defer { try? FileManager.default.removeItem(at: audioURL) }
 
         do {
-            let prompt = glossary.prompt()
-            let text = try await transcription.transcribe(
-                audioURL: audioURL,
-                prompt: prompt,
-                chineseVariant: state.chineseVariant,
-                topK: state.decodingTopK,
-                temperature: state.decodingTemperature,
-                temperatureFallbackCount: state.decodingFallbackCount
-            )
+            let decoding = DecodingSettings(settings: state.settings, prompt: glossary.prompt())
+            let text = try await transcriber.transcribe(audioURL: audioURL, settings: decoding)
             state.lastTranscript = text
             if state.pasteAtCursor {
                 TranscriptDeliverer.pasteAtCursor(text)
