@@ -32,8 +32,8 @@ Claude（或任何執行者）必須遵守以下守則：
 
 | Step | 標題 | 狀態 | 完成日期 | Commit | 備註 |
 |------|------|------|----------|--------|------|
-| 1 | 建立 CI 與測試基準線 | ✅ | 2026-07-03 | `<pending>` | CI workflow + `scripts/test.sh` 就緒；scheme 測試 action 本已正確無需改。CI 綠燈待首次 push 後於 GitHub Actions 確認（Linux 環境無法跑 xcodebuild） |
-| 2 | `SettingsStore`：設定集中化與可注入 | ⬜ | | | |
+| 1 | 建立 CI 與測試基準線 | ✅ | 2026-07-03 | `51195ed` | CI workflow + `scripts/test.sh` 就緒；scheme 測試 action 本已正確無需改。[CI run #1](https://github.com/pcpcchen-coder/VoiceNoter/actions/runs/28639522161) **綠燈確認**（success，含既有 3 個測試檔） |
+| 2 | `SettingsStore`：設定集中化與可注入 | ✅ | 2026-07-03 | `<this>` | 新增 `SettingsStore`（可注入 `UserDefaults`）與 18 個測試；`AppState` 改建構子注入、移除全部 UserDefaults 字面量；`AppStateTests` 改用隔離 suite 不再碰 shared（解 T2）。`chineseVariant` 暫留 `String`，Step 3 升級為 `ChineseVariant` |
 | 3 | `TranscriptPostProcessor`：繁簡轉換純函式化 | ⬜ | | | |
 | 4 | `NoteWriter` 拆分：Formatter + Store + 系統動作 | ⬜ | | | |
 | 5 | `GlossaryStore`：詞表模組化 | ⬜ | | | |
@@ -76,3 +76,5 @@ Claude（或任何執行者）必須遵守以下守則：
 | 日期 | Step | 決策 | 原因 |
 |------|------|------|------|
 | 2026-07-03 | — | 建立本計畫；「幫我整理」改為追加段落而非整檔覆蓋（見 Step 11 行為決策） | 原實作有資料遺失風險（B3） |
+| 2026-07-03 | 2 | `SettingsStore.chineseVariant` 維持 `String`，不在本步升級為 `ChineseVariant` | 型別化屬於 Step 3 範圍，避免夾帶（守則 4） |
+| 2026-07-03 | 2 | 專案未用 Xcode 檔案系統同步群組，新 `.swift` 檔以手動 6 處編輯登記進 `project.pbxproj`（比照 `Paths.swift`） | 否則新檔不會被編譯 |

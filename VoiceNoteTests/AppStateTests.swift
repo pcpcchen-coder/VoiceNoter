@@ -4,10 +4,15 @@ import XCTest
 @MainActor
 final class AppStateTests: XCTestCase {
 
+    /// Each test gets a fresh AppState backed by an isolated UserDefaults suite,
+    /// so tests no longer pollute each other via the shared singleton.
+    private func makeState() -> AppState {
+        let defaults = UserDefaults(suiteName: "AppStateTests-\(UUID().uuidString)")!
+        return AppState(settings: SettingsStore(defaults: defaults))
+    }
+
     func test_setError_setsStateAndLastError() {
-        let s = AppState.shared
-        s.state = .idle
-        s.lastError = nil
+        let s = makeState()
 
         s.setError("boom")
 
@@ -19,9 +24,8 @@ final class AppStateTests: XCTestCase {
     }
 
     func test_noteSoftFailure_setsLastErrorButKeepsStateIdle() {
-        let s = AppState.shared
+        let s = makeState()
         s.state = .recording(startedAt: Date())
-        s.lastError = nil
 
         s.noteSoftFailure("transient")
 
@@ -30,7 +34,7 @@ final class AppStateTests: XCTestCase {
     }
 
     func test_clearTransientError_resetsErrorStateToIdle() {
-        let s = AppState.shared
+        let s = makeState()
         s.setError("oops")
         XCTAssertNotNil(s.lastError)
 
@@ -41,7 +45,7 @@ final class AppStateTests: XCTestCase {
     }
 
     func test_clearTransientError_doesNotMutateNonErrorState() {
-        let s = AppState.shared
+        let s = makeState()
         let started = Date()
         s.state = .recording(startedAt: started)
         s.lastError = "leftover"
@@ -64,5 +68,41 @@ final class AppStateTests: XCTestCase {
     func test_recorderState_equality_treatsErrorsByMessage() {
         XCTAssertEqual(RecorderState.error("x"), RecorderState.error("x"))
         XCTAssertNotEqual(RecorderState.error("x"), RecorderState.error("y"))
+    }
+
+    // MARK: - 設定寫入會透傳到 SettingsStore
+
+    func test_setters_updatePublishedProperties() {
+        let s = makeState()
+
+        s.updateModelChoice("openai_whisper-small")
+        s.setAutoProofread(true)
+        s.setChineseVariant("zh-Hans")
+        s.setPasteAtCursor(false)
+        s.setDecodingTopK(9)
+        s.setDecodingTemperature(0.4)
+        s.setDecodingFallbackCount(2)
+
+        XCTAssertEqual(s.selectedModel, "openai_whisper-small")
+        XCTAssertTrue(s.autoProofread)
+        XCTAssertEqual(s.chineseVariant, "zh-Hans")
+        XCTAssertFalse(s.pasteAtCursor)
+        XCTAssertEqual(s.decodingTopK, 9)
+        XCTAssertEqual(s.decodingTemperature, 0.4)
+        XCTAssertEqual(s.decodingFallbackCount, 2)
+    }
+
+    func test_settings_persistToInjectedStore() {
+        let defaults = UserDefaults(suiteName: "AppStateTests-\(UUID().uuidString)")!
+        let store = SettingsStore(defaults: defaults)
+
+        let s = AppState(settings: store)
+        s.setChineseVariant("zh-Hans")
+        s.updateModelChoice("openai_whisper-small")
+
+        // A fresh AppState over the same store should observe the persisted values.
+        let reloaded = AppState(settings: store)
+        XCTAssertEqual(reloaded.chineseVariant, "zh-Hans")
+        XCTAssertEqual(reloaded.selectedModel, "openai_whisper-small")
     }
 }
