@@ -1,19 +1,18 @@
 import Foundation
 import AppKit
 
-/// 將轉錄結果送到系統：剪貼簿、模擬貼上（CGEvent Cmd+V）到游標位置、以預設 App 開檔。
-///
-/// 目前維持具體型別（靜態方法，與原 `NoteWriter` 一致）；Step 10 會 protocol 化
-/// 成 `TranscriptDelivering` 以便注入。
-enum TranscriptDeliverer {
-    static func copyToPasteboard(_ text: String) {
-        let pb = NSPasteboard.general
-        pb.clearContents()
-        pb.setString(text, forType: .string)
-    }
+/// 把轉錄結果交付到系統的抽象介面（剪貼簿／游標貼上），讓核心流程能注入 mock。
+protocol TranscriptDelivering {
+    /// 一律複製到剪貼簿；`pasteAtCursor` 為 true 時額外模擬 Cmd+V 貼到游標位置。
+    func deliver(_ text: String, pasteAtCursor: Bool)
+}
 
-    static func pasteAtCursor(_ text: String) {
-        copyToPasteboard(text)
+/// `TranscriptDelivering` 的系統實作：剪貼簿 + CGEvent 模擬貼上。
+/// 另提供以預設 App 開檔的靜態工具（選單列使用）。
+struct SystemTranscriptDeliverer: TranscriptDelivering {
+    func deliver(_ text: String, pasteAtCursor: Bool) {
+        Self.copyToPasteboard(text)
+        guard pasteAtCursor else { return }
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
             let source = CGEventSource(stateID: .combinedSessionState)
@@ -26,6 +25,12 @@ enum TranscriptDeliverer {
             keyUp?.flags = .maskCommand
             keyUp?.post(tap: .cgSessionEventTap)
         }
+    }
+
+    static func copyToPasteboard(_ text: String) {
+        let pb = NSPasteboard.general
+        pb.clearContents()
+        pb.setString(text, forType: .string)
     }
 
     static func openInDefaultApp(_ url: URL) {

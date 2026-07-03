@@ -568,7 +568,8 @@ WhisperKit 需要下載模型且依賴 CoreML，**單元測試一律不碰真模
         deliverer: TranscriptDelivering,
         glossary: GlossaryStore)
    ```
-   `handlePress()` / `handleRelease()` 改 `internal` 供測試呼叫；HotkeyManager 的掛載搬到 `VoiceNoteApp`（組裝根）。
+   `handlePress()` / `handleRelease()` 改 `internal` 供測試呼叫。
+   註（Step 10 實作）：init 改為純儲存相依（無副作用）；掛熱鍵與 `scheduleWarmup` 移到 `activate()`，由 `VoiceNoteApp` 於組裝後呼叫。避免暖機 Task 與單元測試斷言競態。另加 `waitForPendingWork()` 供測試 await 轉錄 Task。
 4. `VoiceNoteApp.swift` 剩：進入點、依賴組裝（production 實例）、Scene 定義。
 5. 校稿/「幫我整理」邏輯**原樣搬移**（含既有 bug，Step 11 才修），但改走注入的 `rewriter` 與 `noteStore`。
 

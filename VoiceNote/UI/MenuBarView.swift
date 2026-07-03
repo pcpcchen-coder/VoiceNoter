@@ -29,7 +29,7 @@ struct MenuBarView: View {
 
             if !state.lastTranscript.isEmpty {
                 Button("最近：\(previewSnippet(state.lastTranscript))") {
-                    TranscriptDeliverer.openInDefaultApp(todayNoteURL)
+                    SystemTranscriptDeliverer.openInDefaultApp(todayNoteURL)
                 }
             }
 
@@ -45,7 +45,7 @@ struct MenuBarView: View {
             Divider()
 
             Button("開啟今日筆記") {
-                TranscriptDeliverer.openInDefaultApp(todayNoteURL)
+                SystemTranscriptDeliverer.openInDefaultApp(todayNoteURL)
             }
             Button("在 Finder 顯示筆記資料夾") {
                 NSWorkspace.shared.activateFileViewerSelecting([Paths.notesDirectory])

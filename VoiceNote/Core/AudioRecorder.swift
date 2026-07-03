@@ -19,8 +19,14 @@ enum AudioRecorderError: LocalizedError {
     }
 }
 
+/// 錄音服務的抽象介面，讓核心流程能注入 mock。
+protocol AudioRecording: AnyObject {
+    func start() throws
+    func stop() async throws -> URL
+}
+
 /// Captures microphone input at 16kHz mono Float32 PCM and writes a temporary WAV file.
-final class AudioRecorder {
+final class AudioRecorder: AudioRecording {
     static let targetSampleRate: Double = 16_000
     static let minDurationSeconds: TimeInterval = 0.3
     static let maxDurationSeconds: TimeInterval = 60.0
