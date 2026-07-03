@@ -12,6 +12,8 @@
 		1A0000000000000000000083 /* AudioRecorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000000000000000000051 /* AudioRecorder.swift */; };
 		1A0000000000000000000084 /* WhisperKitTranscriber.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000000000000000000052 /* WhisperKitTranscriber.swift */; };
 		1A0000000000000000000096 /* Transcribing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A000000000000000000005F /* Transcribing.swift */; };
+		1A0000000000000000000097 /* TextRewriting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000000000000000000063 /* TextRewriting.swift */; };
+		1A0000000000000000000098 /* OpenAIRewriter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000000000000000000064 /* OpenAIRewriter.swift */; };
 		1A0000000000000000000086 /* HotkeyManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000000000000000000054 /* HotkeyManager.swift */; };
 		1A0000000000000000000087 /* Paths.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000000000000000000055 /* Paths.swift */; };
 		1A0000000000000000000088 /* MenuBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000000000000000000060 /* MenuBarView.swift */; };
@@ -37,11 +39,12 @@
 		1A0000000000000000000228 /* GlossaryStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000000000000000000218 /* GlossaryStoreTests.swift */; };
 		1A0000000000000000000229 /* MockTranscriber.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000000000000000000219 /* MockTranscriber.swift */; };
 		1A000000000000000000022A /* DecodingSettingsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A000000000000000000021B /* DecodingSettingsTests.swift */; };
+		1A000000000000000000022B /* OpenAIRewriterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A000000000000000000021C /* OpenAIRewriterTests.swift */; };
+		1A000000000000000000022C /* MockRewriter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A000000000000000000021D /* MockRewriter.swift */; };
 		1A0000000000000000000224 /* SettingsStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000000000000000000214 /* SettingsStoreTests.swift */; };
 		1A0000000000000000000225 /* TranscriptPostProcessorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000000000000000000215 /* TranscriptPostProcessorTests.swift */; };
 		AF24760D2FA74533003FBF7C /* OpenAIOAuthManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF24760C2FA74533003FBF7C /* OpenAIOAuthManager.swift */; };
 		AF24760F2FA7502A003FBF7C /* OpenAISettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF24760E2FA7502A003FBF7C /* OpenAISettingsView.swift */; };
-		AF84009A2FA740090004DAAA /* AIRewriter.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF8400992FA740090004DAAA /* AIRewriter.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -66,6 +69,8 @@
 		1A0000000000000000000051 /* AudioRecorder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioRecorder.swift; sourceTree = "<group>"; };
 		1A0000000000000000000052 /* WhisperKitTranscriber.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WhisperKitTranscriber.swift; sourceTree = "<group>"; };
 		1A000000000000000000005F /* Transcribing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Transcribing.swift; sourceTree = "<group>"; };
+		1A0000000000000000000063 /* TextRewriting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextRewriting.swift; sourceTree = "<group>"; };
+		1A0000000000000000000064 /* OpenAIRewriter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenAIRewriter.swift; sourceTree = "<group>"; };
 		1A0000000000000000000054 /* HotkeyManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotkeyManager.swift; sourceTree = "<group>"; };
 		1A000000000000000000005A /* NoteFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteFormatter.swift; sourceTree = "<group>"; };
 		1A000000000000000000005B /* NoteStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteStore.swift; sourceTree = "<group>"; };
@@ -87,11 +92,12 @@
 		1A0000000000000000000218 /* GlossaryStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlossaryStoreTests.swift; sourceTree = "<group>"; };
 		1A0000000000000000000219 /* MockTranscriber.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockTranscriber.swift; sourceTree = "<group>"; };
 		1A000000000000000000021B /* DecodingSettingsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DecodingSettingsTests.swift; sourceTree = "<group>"; };
+		1A000000000000000000021C /* OpenAIRewriterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenAIRewriterTests.swift; sourceTree = "<group>"; };
+		1A000000000000000000021D /* MockRewriter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockRewriter.swift; sourceTree = "<group>"; };
 		1A0000000000000000000214 /* SettingsStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsStoreTests.swift; sourceTree = "<group>"; };
 		1A0000000000000000000215 /* TranscriptPostProcessorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptPostProcessorTests.swift; sourceTree = "<group>"; };
 		AF24760C2FA74533003FBF7C /* OpenAIOAuthManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenAIOAuthManager.swift; sourceTree = "<group>"; };
 		AF24760E2FA7502A003FBF7C /* OpenAISettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenAISettingsView.swift; sourceTree = "<group>"; };
-		AF8400992FA740090004DAAA /* AIRewriter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIRewriter.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -162,9 +168,18 @@
 				1A0000000000000000000057 /* Transcription */,
 				1A0000000000000000000059 /* Notes */,
 				1A000000000000000000005C /* Output */,
-				AF8400992FA740090004DAAA /* AIRewriter.swift */,
+				1A0000000000000000000065 /* AI */,
 			);
 			path = Core;
+			sourceTree = "<group>";
+		};
+		1A0000000000000000000065 /* AI */ = {
+			isa = PBXGroup;
+			children = (
+				1A0000000000000000000063 /* TextRewriting.swift */,
+				1A0000000000000000000064 /* OpenAIRewriter.swift */,
+			);
+			path = AI;
 			sourceTree = "<group>";
 		};
 		1A0000000000000000000059 /* Notes */ = {
@@ -240,6 +255,7 @@
 				1A0000000000000000000217 /* FileNoteStoreTests.swift */,
 				1A0000000000000000000218 /* GlossaryStoreTests.swift */,
 				1A000000000000000000021B /* DecodingSettingsTests.swift */,
+				1A000000000000000000021C /* OpenAIRewriterTests.swift */,
 				1A000000000000000000021A /* Mocks */,
 			);
 			path = VoiceNoteTests;
@@ -249,6 +265,7 @@
 			isa = PBXGroup;
 			children = (
 				1A0000000000000000000219 /* MockTranscriber.swift */,
+				1A000000000000000000021D /* MockRewriter.swift */,
 			);
 			path = Mocks;
 			sourceTree = "<group>";
@@ -374,6 +391,8 @@
 				1A0000000000000000000083 /* AudioRecorder.swift in Sources */,
 				1A0000000000000000000084 /* WhisperKitTranscriber.swift in Sources */,
 				1A0000000000000000000096 /* Transcribing.swift in Sources */,
+				1A0000000000000000000097 /* TextRewriting.swift in Sources */,
+				1A0000000000000000000098 /* OpenAIRewriter.swift in Sources */,
 				1A000000000000000000008F /* NoteFormatter.swift in Sources */,
 				1A0000000000000000000093 /* NoteStore.swift in Sources */,
 				1A0000000000000000000094 /* TranscriptDeliverer.swift in Sources */,
@@ -382,7 +401,6 @@
 				1A000000000000000000008A /* StatusIcon.swift in Sources */,
 				1A0000000000000000000088 /* MenuBarView.swift in Sources */,
 				1A0000000000000000000089 /* SettingsView.swift in Sources */,
-				AF84009A2FA740090004DAAA /* AIRewriter.swift in Sources */,
 				1A0000000000000000000081 /* VoiceNoteApp.swift in Sources */,
 				AF24760D2FA74533003FBF7C /* OpenAIOAuthManager.swift in Sources */,
 			);
@@ -401,6 +419,8 @@
 				1A0000000000000000000228 /* GlossaryStoreTests.swift in Sources */,
 				1A0000000000000000000229 /* MockTranscriber.swift in Sources */,
 				1A000000000000000000022A /* DecodingSettingsTests.swift in Sources */,
+				1A000000000000000000022B /* OpenAIRewriterTests.swift in Sources */,
+				1A000000000000000000022C /* MockRewriter.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -262,3 +262,11 @@ extension OpenAIOAuthManager: ASWebAuthenticationPresentationContextProviding {
         NSApp.keyWindow ?? ASPresentationAnchor()
     }
 }
+
+extension OpenAIOAuthManager: CredentialProviding {
+    /// 過渡期橋接：直接讀 UserDefaults 中已持久化的 token 供 `OpenAIRewriter` 使用。
+    /// Step 8 會改由 Keychain-backed `CredentialStore` 取代，本 extension 隨 OAuth 流程於 Step 9 刪除。
+    nonisolated var apiKey: String? {
+        UserDefaults.standard.string(forKey: "openai_access_token")
+    }
+}

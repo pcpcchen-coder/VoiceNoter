@@ -45,6 +45,7 @@ final class RecordingCoordinator: ObservableObject {
     private let transcriber: Transcribing
     private let noteStore: NoteStoring = FileNoteStore()
     private let glossary = GlossaryStore()
+    private let rewriter: TextRewriting
     private var hotkey: HotkeyManager!
     private var warmupTask: Task<Void, Never>?
     private var maxDurationGuard: Task<Void, Never>?
@@ -53,6 +54,7 @@ final class RecordingCoordinator: ObservableObject {
     init(state: AppState) {
         self.state = state
         self.transcriber = WhisperKitTranscriber(settings: state.settings)
+        self.rewriter = OpenAIRewriter(credentials: OpenAIOAuthManager.shared)
         self.hotkey = HotkeyManager(
             onPress: { [weak self] in self?.handlePress() },
             onRelease: { [weak self] in self?.handleRelease() }
@@ -211,7 +213,7 @@ final class RecordingCoordinator: ObservableObject {
 
             if state.autoProofread {
                 do {
-                    let proofread = try await AIRewriter.rewrite(text)
+                    let proofread = try await rewriter.rewrite(text)
                     let noteURL = noteStore.todayNoteURL(now: Date())
                     if var fileContent = try? String(contentsOf: noteURL, encoding: .utf8) {
                         if let range = fileContent.range(of: text, options: .backwards) {
@@ -230,7 +232,7 @@ final class RecordingCoordinator: ObservableObject {
                 if let original = try? String(contentsOf: noteURL), !original.isEmpty {
                     Task { @MainActor in
                         do {
-                            let rewritten = try await AIRewriter.rewrite(original)
+                            let rewritten = try await rewriter.rewrite(original)
                             try? rewritten.write(to: noteURL, atomically: true, encoding: .utf8)
                             self.state.noteSoftFailure("筆記內容已由 AI 整理")
                         } catch {

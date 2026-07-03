@@ -38,7 +38,7 @@ Claude（或任何執行者）必須遵守以下守則：
 | 4 | `NoteWriter` 拆分：Formatter + Store + 系統動作 | ✅ | 2026-07-03 | `<this>` | `NoteWriter` 拆成 `Core/Notes/NoteFormatter`（純格式）、`Core/Notes/NoteStore`（`NoteStoring` protocol + `FileNoteStore`，含拋錯的 `replaceLastEntry`）、`Core/Output/TranscriptDeliverer`（剪貼簿/貼上/開檔）；既有 6 個筆記測試遷入 `FileNoteStoreTests` + 3 純函式測試於 `NoteFormatterTests`；刪除 `NoteWriter.swift`/`NoteWriterTests.swift`。coordinator 的校稿字串手術暫維持原狀（Step 11 才用 replaceLastEntry 修 B4） |
 | 5 | `GlossaryStore`：詞表模組化 | ✅ | 2026-07-03 | `<this>` | 新增 `Core/GlossaryStore.swift`（`bootstrapIfNeeded` + `prompt`），自 `Paths` 遷出；`Paths` 只剩路徑常量與 `ensureDirectoriesExist`（DoD 達成）；4 個 glossary 測試自 `PathsTests` 遷入 `GlossaryStoreTests` 並加 3 個 bootstrap 測試；`VoiceNoteApp` 改用 `GlossaryStore`。**Phase 1 完成** |
 | 6 | `Transcribing` 協定與模型快取集中 | ✅ | 2026-07-03 | `<this>` | 新增 `Transcribing` 協定 + `DecodingSettings`（值型別，`init(settings:prompt:)`）；`TranscriptionService`→`WhisperKitTranscriber` 移入 `Core/Transcription/` 並 conform，6 參數 transcribe 收斂為 `DecodingSettings`；模型路徑快取集中到 `SettingsStore.modelFolderPath(for:)`；新增 `MockTranscriber`（Mocks 群組）+ `DecodingSettingsTests` + 2 個快取測試。DoD 達成：`whisperkit_model_path` 只在 SettingsStore、`import WhisperKit` 只在 WhisperKitTranscriber/SettingsView。**Phase 2 起步** |
-| 7 | `OpenAIRewriter` 重構 | ⬜ | | | |
+| 7 | `OpenAIRewriter` 重構 | ✅ | 2026-07-03 | `<this>` | 新增 `Core/AI/`：`TextRewriting`/`CredentialProviding` 協定 + `OpenAIRewriter`（Codable、可注入 `URLSession`、型別化 `OpenAIRewriterError`）；`OpenAIRewriterTests` 以 `URLProtocol` stub 涵蓋 5 案例（不連網）；新增 `MockRewriter`；coordinator 改用注入的 `TextRewriting`；刪除 `AIRewriter.swift`。DoD：rewriter 路徑已無 `JSONSerialization`（剩餘唯一使用在 `OpenAIOAuthManager`，Step 9 整檔刪除） |
 | 8 | `CredentialStore`：API Key 移入 Keychain | ⬜ | | | |
 | 9 | 死碼大掃除 | ⬜ | | | |
 | 10 | `RecordingCoordinator` 獨立化與依賴注入 | ⬜ | | | |
@@ -83,3 +83,6 @@ Claude（或任何執行者）必須遵守以下守則：
 | 2026-07-03 | 5 | `GlossaryStore` 建構子改用 `defaultSource: URL?`（預設 `Bundle.main` 查找）而非計畫原訂的 `bundle: Bundle` | 用 Bundle 注入來測 bootstrap 需在 macOS 偽造 bundle 資源查找，脆弱不可靠；改注入來源 URL 可直接用 temp 檔測試，行為不變。已同步更新 `REFACTOR_PLAN.md` Step 5 |
 | 2026-07-03 | 6 | `AppState.settings` 由 `private` 改為 internal `let`，供 coordinator/SettingsView 組 `DecodingSettings` 與存取模型快取 | Step 10 會把 settings 改為對 coordinator 顯式注入；本步先開放讀取，避免重複建立 SettingsStore 實例 |
 | 2026-07-03 | 6 | `WhisperKitTranscriber(settings:)` 注入 SettingsStore 以存取模型路徑快取；coordinator 以 `state.settings` 傳入 | 讓快取與 AppState 用同一 store；預設參數 `SettingsStore()` 亦指向 standard，行為不變 |
+| 2026-07-03 | 7 | `OpenAIOAuthManager` 過渡期 conform `CredentialProviding`，以 `nonisolated var apiKey` 直讀 UserDefaults token | @MainActor 類別無法用同步屬性滿足 nonisolated 協定；直讀已持久化的 token 可避開 actor 隔離，且 Step 8/9 即替換／刪除 |
+| 2026-07-03 | 7 | DoD「專案內無 JSONSerialization」在本步僅對 rewriter 路徑達成；`OpenAIOAuthManager` 仍有殘留 | 該檔為死 OAuth 碼，Step 9 整檔刪除後 DoD 完全達成，本步不夾帶 |
+| 2026-07-03 | 7 | pbxproj 教訓：新檔 ID 一度誤用 `0060/0061/0062`（實為 MenuBar/Settings/StatusIcon），驗證步驟抓到後改用 `0063/0064/0065` | 往後配置新 ID 前需先 grep 確認未被佔用；UI 檔佔 0060-0062、Utils 佔 0070-0071 |
