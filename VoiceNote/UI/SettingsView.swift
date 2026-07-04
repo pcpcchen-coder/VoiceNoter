@@ -55,7 +55,7 @@ struct SettingsView: View {
                         .foregroundStyle(.secondary)
                 }
 
-                Text("變更後請結束 VoiceNote 並重新啟動以套用新模型。")
+                Text("切換後會自動重新載入模型，無需重啟 App。")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
@@ -190,7 +190,7 @@ struct SettingsView: View {
                 }
                 state.settings.setModelFolderPath(modelFolder.path, for: state.selectedModel)
                 isDownloading = false
-                downloadStatus = "模型已下載完成，重啟 App 即可使用。"
+                downloadStatus = "模型已下載完成，可直接使用。"
             } catch {
                 isDownloading = false
                 downloadStatus = "下載失敗：\(error.localizedDescription)"

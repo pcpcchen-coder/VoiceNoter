@@ -76,6 +76,12 @@ final class AppState: ObservableObject {
         self.infoMessage = message
     }
 
+    /// Surfaces a red message without changing the recorder state (e.g. "please wait"
+    /// while a model is still loading — we must not clobber `.downloadingModel`).
+    func flashError(_ message: String) {
+        self.lastError = message
+    }
+
     /// Clears both transient messages (error + info). Called when a new recording starts.
     func clearTransientError() {
         self.lastError = nil

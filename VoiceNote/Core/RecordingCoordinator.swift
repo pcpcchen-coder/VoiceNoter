@@ -10,8 +10,6 @@ import Combine
 /// directly, skipping `activate()`.
 @MainActor
 final class RecordingCoordinator: ObservableObject {
-    @Published var modelLoadFailed: Bool = false
-
     private let state: AppState
     private let settings: SettingsStore
     private let recorder: AudioRecording
@@ -26,6 +24,7 @@ final class RecordingCoordinator: ObservableObject {
     private var warmupTask: Task<Void, Never>?
     private var maxDurationGuard: Task<Void, Never>?
     private var transcribeTask: Task<Void, Never>?
+    private var cancellables = Set<AnyCancellable>()
     private var isActivated = false
 
     init(
@@ -47,6 +46,16 @@ final class RecordingCoordinator: ObservableObject {
         self.deliverer = deliverer
         self.glossary = glossary
         self.pipeline = PostTranscriptionPipeline(rewriter: rewriter, noteStore: noteStore, state: state)
+
+        // Reload the model whenever the user picks a different one (no app restart).
+        // dropFirst() skips the initial value so construction stays side-effect free.
+        state.$selectedModel
+            .dropFirst()
+            .removeDuplicates()
+            .sink { [weak self] newModel in
+                self?.scheduleWarmup(modelName: newModel)
+            }
+            .store(in: &cancellables)
     }
 
     /// Side effects that should only run in the real app: register the global hotkey and
@@ -62,25 +71,28 @@ final class RecordingCoordinator: ObservableObject {
         hotkey.register()
         self.hotkey = hotkey
 
-        scheduleWarmup()
+        scheduleWarmup(modelName: state.selectedModel)
     }
 
     // MARK: - Warmup
 
     func retryWarmup() {
-        scheduleWarmup()
+        scheduleWarmup(modelName: state.selectedModel)
     }
 
-    private func scheduleWarmup() {
+    /// Test helper: await the in-flight warmup task.
+    func waitForWarmup() async {
+        await warmupTask?.value
+    }
+
+    private func scheduleWarmup(modelName: String) {
         warmupTask?.cancel()
         warmupTask = Task { @MainActor [weak self] in
-            await self?.warmupModel()
+            await self?.warmupModel(modelName: modelName)
         }
     }
 
-    private func warmupModel() async {
-        let modelName = state.selectedModel
-        modelLoadFailed = false
+    private func warmupModel(modelName: String) async {
         state.lastError = nil
         state.state = .downloadingModel(progress: 0)
         do {
@@ -105,40 +117,40 @@ final class RecordingCoordinator: ObservableObject {
             // Superseded by another warmup; do nothing.
             return
         } catch {
-            // Use a soft failure so the icon stays in the normal "mic" look — the spec
-            // reserves the gray icon for a denied microphone permission. The retry
-            // button is gated by `modelLoadFailed`, and `handlePress()` blocks recording
-            // while `transcriber.isReady == false`.
-            modelLoadFailed = true
-            state.noteSoftFailure("模型初始化失敗：\(error.localizedDescription)")
+            // Model load failure is a hard error → `.error` state (single source of truth).
+            // The menu's retry button is driven by `case .error`, and `handlePress()` blocks
+            // recording while in `.error`.
+            state.setError("模型初始化失敗：\(error.localizedDescription)")
         }
     }
 
     // MARK: - Hotkey handlers (internal for tests)
 
     func handlePress() {
-        // Block while busy or downloading.
         switch state.state {
-        case .recording, .transcribing, .downloadingModel, .loadingModel:
+        case .recording, .transcribing:
             return
-        default:
+        case .downloadingModel, .loadingModel:
+            // Reload / warmup in progress — tell the user to wait, keep the state intact.
+            state.flashError("模型尚在載入中，請稍候…")
+            return
+        case .error:
+            // Model failed to load; the menu already shows the error + retry button.
+            return
+        case .idle:
             break
         }
 
-        // Model not ready yet — fail fast so the user isn't surprised at transcribe time.
+        // Defensive: idle but not ready yet.
         if !transcriber.isReady {
-            if modelLoadFailed {
-                state.noteSoftFailure("模型尚未載入，請點擊「重試模型載入」")
-            } else {
-                state.noteSoftFailure("模型尚在載入中，請稍候…")
-            }
+            state.flashError("模型尚在載入中，請稍候…")
             return
         }
 
         // First-press permission flow: request mic access if undetermined; abort otherwise.
         switch state.micPermission {
         case .denied:
-            state.noteSoftFailure("麥克風權限未授予")
+            state.flashError("麥克風權限未授予")
             return
         case .undetermined:
             // Trigger system permission prompt; do NOT auto-record afterwards because

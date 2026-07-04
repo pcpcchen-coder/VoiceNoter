@@ -17,7 +17,7 @@ struct MenuBarView: View {
                 Text(statusLine).disabled(true)
             }
 
-            if coordinator.modelLoadFailed {
+            if case .error = state.state {
                 Button("重試模型載入") { coordinator.retryWarmup() }
             }
 
@@ -76,20 +76,7 @@ struct MenuBarView: View {
 
     private var statusLine: String {
         let hotkeyDesc = KeyboardShortcuts.getShortcut(for: .pushToTalk)?.description ?? "未設定"
-        switch state.state {
-        case .idle:
-            return "待機中 · 熱鍵 \(hotkeyDesc)"
-        case .recording:
-            return "錄音中…"
-        case .transcribing:
-            return "轉錄中…"
-        case .error:
-            return "發生錯誤"
-        case .downloadingModel(let progress):
-            return "下載模型中 \(Int(progress * 100))%"
-        case .loadingModel:
-            return "載入模型中（首次可能需要數分鐘）…"
-        }
+        return MenuStatusText.line(state: state.state, hotkeyDescription: hotkeyDesc)
     }
 
     private func previewSnippet(_ text: String) -> String {

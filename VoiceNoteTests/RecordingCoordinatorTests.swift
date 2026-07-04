@@ -83,14 +83,27 @@ final class RecordingCoordinatorTests: XCTestCase {
         XCTAssertEqual(rig.recorder.startCallCount, 0)
     }
 
-    func test_press_whenModelLoadFailed_showsRetryMessage() throws {
+    func test_press_whenModelError_isBlocked_withoutClearingError() throws {
         let rig = try makeRig(transcriberReady: false)
-        rig.coordinator.modelLoadFailed = true
+        rig.state.setError("模型初始化失敗")
 
         rig.coordinator.handlePress()
 
-        XCTAssertEqual(rig.state.lastError, "模型尚未載入，請點擊「重試模型載入」")
         XCTAssertEqual(rig.recorder.startCallCount, 0)
+        guard case .error = rig.state.state else {
+            return XCTFail(".error state must persist across a press")
+        }
+    }
+
+    func test_press_duringModelReload_isBlockedWithMessage() throws {
+        let rig = try makeRig()
+        rig.state.state = .downloadingModel(progress: 0.3)
+
+        rig.coordinator.handlePress()
+
+        XCTAssertEqual(rig.recorder.startCallCount, 0)
+        XCTAssertEqual(rig.state.lastError, "模型尚在載入中，請稍候…")
+        XCTAssertEqual(rig.state.state, .downloadingModel(progress: 0.3))
     }
 
     func test_press_whenMicDenied_showsPermissionMessage() throws {
@@ -244,5 +257,47 @@ final class RecordingCoordinatorTests: XCTestCase {
         XCTAssertEqual(rig.noteStore.appendedSections.count, 1)
         XCTAssertEqual(rig.noteStore.appendedSections.first?.body, "整理摘要")
         XCTAssertEqual(rig.state.infoMessage, "筆記已由 AI 整理")
+    }
+
+    // MARK: - Step 12: warmup / model reload
+
+    func test_warmupFailure_entersErrorState() async throws {
+        let rig = try makeRig(transcriberReady: false)
+        rig.transcriber.warmupError = TranscriptionError.underlying("boom")
+
+        rig.coordinator.retryWarmup()
+        await rig.coordinator.waitForWarmup()
+
+        guard case .error = rig.state.state else {
+            return XCTFail("warmup failure should enter .error")
+        }
+        XCTAssertNotNil(rig.state.lastError)
+    }
+
+    func test_retryWarmup_fromErrorState_recovers() async throws {
+        let rig = try makeRig(transcriberReady: false)
+        rig.transcriber.warmupError = TranscriptionError.underlying("boom")
+        rig.coordinator.retryWarmup()
+        await rig.coordinator.waitForWarmup()
+        guard case .error = rig.state.state else {
+            return XCTFail("expected .error first")
+        }
+
+        rig.transcriber.warmupError = nil
+        rig.coordinator.retryWarmup()
+        await rig.coordinator.waitForWarmup()
+
+        XCTAssertEqual(rig.state.state, .idle)
+        XCTAssertNil(rig.state.lastError)
+        XCTAssertTrue(rig.transcriber.isReady)
+    }
+
+    func test_modelChange_restartsWarmup_withNewModelName() async throws {
+        let rig = try makeRig()
+
+        rig.state.updateModelChoice("openai_whisper-small")
+        await rig.coordinator.waitForWarmup()
+
+        XCTAssertEqual(rig.transcriber.warmupCalls.last, "openai_whisper-small")
     }
 }

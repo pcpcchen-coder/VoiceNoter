@@ -18,6 +18,7 @@
 		1A000000000000000000009A /* CredentialsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000000000000000000068 /* CredentialsViewModel.swift */; };
 		1A000000000000000000009B /* RecordingCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000000000000000000069 /* RecordingCoordinator.swift */; };
 		1A000000000000000000009C /* PostTranscriptionPipeline.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A000000000000000000006A /* PostTranscriptionPipeline.swift */; };
+		1A000000000000000000009D /* MenuStatusText.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A000000000000000000006B /* MenuStatusText.swift */; };
 		1A0000000000000000000086 /* HotkeyManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000000000000000000054 /* HotkeyManager.swift */; };
 		1A0000000000000000000087 /* Paths.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000000000000000000055 /* Paths.swift */; };
 		1A0000000000000000000088 /* MenuBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000000000000000000060 /* MenuBarView.swift */; };
@@ -52,6 +53,7 @@
 		1A0000000000000000000235 /* MockNoteStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000000000000000000234 /* MockNoteStore.swift */; };
 		1A0000000000000000000237 /* RecordingCoordinatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000000000000000000236 /* RecordingCoordinatorTests.swift */; };
 		1A0000000000000000000239 /* PostTranscriptionPipelineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000000000000000000238 /* PostTranscriptionPipelineTests.swift */; };
+		1A000000000000000000023B /* MenuStatusTextTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A000000000000000000023A /* MenuStatusTextTests.swift */; };
 		1A0000000000000000000224 /* SettingsStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000000000000000000214 /* SettingsStoreTests.swift */; };
 		1A0000000000000000000225 /* TranscriptPostProcessorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0000000000000000000215 /* TranscriptPostProcessorTests.swift */; };
 /* End PBXBuildFile section */
@@ -84,6 +86,7 @@
 		1A0000000000000000000068 /* CredentialsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CredentialsViewModel.swift; sourceTree = "<group>"; };
 		1A0000000000000000000069 /* RecordingCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordingCoordinator.swift; sourceTree = "<group>"; };
 		1A000000000000000000006A /* PostTranscriptionPipeline.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostTranscriptionPipeline.swift; sourceTree = "<group>"; };
+		1A000000000000000000006B /* MenuStatusText.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuStatusText.swift; sourceTree = "<group>"; };
 		1A0000000000000000000054 /* HotkeyManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotkeyManager.swift; sourceTree = "<group>"; };
 		1A000000000000000000005A /* NoteFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteFormatter.swift; sourceTree = "<group>"; };
 		1A000000000000000000005B /* NoteStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteStore.swift; sourceTree = "<group>"; };
@@ -114,6 +117,7 @@
 		1A0000000000000000000234 /* MockNoteStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockNoteStore.swift; sourceTree = "<group>"; };
 		1A0000000000000000000236 /* RecordingCoordinatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordingCoordinatorTests.swift; sourceTree = "<group>"; };
 		1A0000000000000000000238 /* PostTranscriptionPipelineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostTranscriptionPipelineTests.swift; sourceTree = "<group>"; };
+		1A000000000000000000023A /* MenuStatusTextTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuStatusTextTests.swift; sourceTree = "<group>"; };
 		1A0000000000000000000214 /* SettingsStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsStoreTests.swift; sourceTree = "<group>"; };
 		1A0000000000000000000215 /* TranscriptPostProcessorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptPostProcessorTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -241,6 +245,7 @@
 			isa = PBXGroup;
 			children = (
 				1A0000000000000000000060 /* MenuBarView.swift */,
+				1A000000000000000000006B /* MenuStatusText.swift */,
 				1A0000000000000000000061 /* SettingsView.swift */,
 				1A0000000000000000000062 /* StatusIcon.swift */,
 			);
@@ -287,6 +292,7 @@
 				1A000000000000000000021E /* CredentialMigrationTests.swift */,
 				1A0000000000000000000236 /* RecordingCoordinatorTests.swift */,
 				1A0000000000000000000238 /* PostTranscriptionPipelineTests.swift */,
+				1A000000000000000000023A /* MenuStatusTextTests.swift */,
 				1A000000000000000000021A /* Mocks */,
 			);
 			path = VoiceNoteTests;
@@ -437,6 +443,7 @@
 				1A0000000000000000000095 /* GlossaryStore.swift in Sources */,
 				1A0000000000000000000086 /* HotkeyManager.swift in Sources */,
 				1A000000000000000000008A /* StatusIcon.swift in Sources */,
+				1A000000000000000000009D /* MenuStatusText.swift in Sources */,
 				1A0000000000000000000088 /* MenuBarView.swift in Sources */,
 				1A0000000000000000000089 /* SettingsView.swift in Sources */,
 				1A0000000000000000000081 /* VoiceNoteApp.swift in Sources */,
@@ -465,6 +472,7 @@
 				1A0000000000000000000235 /* MockNoteStore.swift in Sources */,
 				1A0000000000000000000237 /* RecordingCoordinatorTests.swift in Sources */,
 				1A0000000000000000000239 /* PostTranscriptionPipelineTests.swift in Sources */,
+				1A000000000000000000023B /* MenuStatusTextTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

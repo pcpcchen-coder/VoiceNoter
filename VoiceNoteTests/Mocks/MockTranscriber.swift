@@ -20,6 +20,7 @@ final class MockTranscriber: Transcribing {
     ) async throws {
         warmupCalls.append(modelName)
         if let warmupError { throw warmupError }
+        isReadyValue = true
         await onLoadingStarted()
         await onProgress(1.0)
     }
