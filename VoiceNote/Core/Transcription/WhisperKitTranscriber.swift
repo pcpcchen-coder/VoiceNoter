@@ -22,9 +22,11 @@ final class WhisperKitTranscriber: Transcribing {
     private var whisperKit: WhisperKit?
     private(set) var loadedModel: String?
     private let settings: SettingsStore
+    private let downloader: ModelDownloading
 
-    init(settings: SettingsStore = SettingsStore()) {
+    init(settings: SettingsStore = SettingsStore(), downloader: ModelDownloading = WhisperKitModelDownloader()) {
         self.settings = settings
+        self.downloader = downloader
     }
 
     var isReady: Bool { whisperKit != nil }
@@ -49,12 +51,8 @@ final class WhisperKitTranscriber: Transcribing {
                 modelFolder = URL(fileURLWithPath: cachedPath)
                 await onProgress(0.8)
             } else {
-                modelFolder = try await WhisperKit.download(
-                    variant: modelName
-                ) { progress in
-                    Task { @MainActor in
-                        onProgress(progress.fractionCompleted * 0.8)
-                    }
+                modelFolder = try await downloader.download(variant: modelName) { fraction in
+                    onProgress(fraction * 0.8)
                 }
                 settings.setModelFolderPath(modelFolder.path, for: modelName)
                 Log.transcription.info("Model downloaded to \(modelFolder.path, privacy: .public)")
