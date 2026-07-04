@@ -18,6 +18,7 @@ final class RecordingCoordinator: ObservableObject {
     private let rewriter: TextRewriting
     private let deliverer: TranscriptDelivering
     private let glossary: GlossaryStore
+    private let isAccessibilityGranted: () -> Bool
     private let pipeline: PostTranscriptionPipeline
 
     private var hotkey: HotkeyManager?
@@ -35,7 +36,8 @@ final class RecordingCoordinator: ObservableObject {
         noteStore: NoteStoring,
         rewriter: TextRewriting,
         deliverer: TranscriptDelivering,
-        glossary: GlossaryStore
+        glossary: GlossaryStore,
+        isAccessibilityGranted: @escaping () -> Bool = { PermissionHelper.isAccessibilityGranted() }
     ) {
         self.state = state
         self.settings = settings
@@ -45,6 +47,7 @@ final class RecordingCoordinator: ObservableObject {
         self.rewriter = rewriter
         self.deliverer = deliverer
         self.glossary = glossary
+        self.isAccessibilityGranted = isAccessibilityGranted
         self.pipeline = PostTranscriptionPipeline(rewriter: rewriter, noteStore: noteStore, state: state)
 
         // Reload the model whenever the user picks a different one (no app restart).
@@ -227,7 +230,13 @@ final class RecordingCoordinator: ObservableObject {
 
             // Deliver the original transcript to the cursor (low latency); the note may be
             // superseded by the proofread version below. See README's B5 tradeoff note.
-            deliverer.deliver(text, pasteAtCursor: state.pasteAtCursor)
+            // Cursor paste needs Accessibility (B8): fall back to clipboard-only + a hint.
+            let wantsPaste = state.pasteAtCursor
+            let canPaste = wantsPaste && isAccessibilityGranted()
+            deliverer.deliver(text, pasteAtCursor: canPaste)
+            if wantsPaste && !canPaste {
+                state.noteInfo("已複製到剪貼簿（游標輸入需在「系統設定 → 輔助使用」開啟權限）")
+            }
 
             let isOrganizeCommand = PostTranscriptionPipeline.detectOrganizeCommand(text)
             // The "organize" trigger utterance is a command, not a note — don't append it.

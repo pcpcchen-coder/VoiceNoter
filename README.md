@@ -125,24 +125,33 @@ App 啟動後會在選單列出現麥克風圖示（無 Dock 圖示）。
 今天的語音筆記內容
 ```
 
-## 重構計畫
-
-本專案正在進行分階段重構（TDD），相關文件：
-
-- [`docs/PROJECT_REVIEW.md`](docs/PROJECT_REVIEW.md) — 專案現況檢閱與問題清單
-- [`docs/REFACTOR_PLAN.md`](docs/REFACTOR_PLAN.md) — 5 個 Phase、14 個 Step 的重構計畫（含每步的 TDD 測試規格與驗收條件）
-- [`docs/REFACTOR_PROGRESS.md`](docs/REFACTOR_PROGRESS.md) — 進度追蹤與執行守則
-
-執行方式：對 Claude 說「請完成 Step N」，即可依計畫逐步完成。
-
 ## 技術架構
 
 - **SwiftUI** — MenuBarExtra 選單列 App（LSUIElement）
-- **WhisperKit 0.18.0** — 本地 CoreML Whisper 語音辨識
+- **WhisperKit** — 本地 CoreML Whisper 語音辨識
 - **KeyboardShortcuts** — 全域熱鍵管理
-- **OpenAI API** — gpt-4o-mini 文字校稿
+- **OpenAI API** — gpt-4o-mini 文字校稿（Codable + 可注入 URLSession）
 - **CGEvent** — 模擬 Cmd+V 實現游標位置輸入
 - **ICU StringTransform** — 繁簡中文轉換（Hans-Hant / Hant-Hans）
+- **Keychain** — OpenAI API Key 加密儲存
+
+程式碼採依賴注入 + protocol 分層（`Core/` 服務、`UI/` 介面、`Utils/` 工具），
+核心流程 `RecordingCoordinator` 全部相依皆可注入 mock，並有完整單元測試。
+詳細模組圖、資料流、protocol 清單與測試策略見 [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)。
+
+## 已知限制
+
+- **游標貼上假設 QWERTY 鍵盤配置**：以 CGEvent 送 Cmd+V 時鍵位寫死，非 QWERTY 硬體配置（如 Dvorak）可能按錯鍵。
+- **游標文字未經校稿**：為低延遲，貼到游標的是原始轉錄；AI 校稿版本只更新到筆記檔（見上）。
+- **游標輸入需輔助使用權限**：未授權時會自動退回「只複製到剪貼簿」並在選單提示。
+- **App Sandbox 關閉**：全域熱鍵與任意路徑寫檔的取捨；要上 Mac App Store 需另做 sandbox。
+
+## 開發文件
+
+- [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) — 最終架構、資料流、protocol 清單、測試策略
+- [`docs/PROJECT_REVIEW.md`](docs/PROJECT_REVIEW.md) — 重構前的專案檢閱與問題清單
+- [`docs/REFACTOR_PLAN.md`](docs/REFACTOR_PLAN.md) — 5 Phase / 14 Step 的分階段 TDD 重構計畫
+- [`docs/REFACTOR_PROGRESS.md`](docs/REFACTOR_PROGRESS.md) — 進度追蹤與執行守則
 
 ## 授權
 

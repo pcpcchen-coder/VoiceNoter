@@ -32,6 +32,7 @@ final class RecordingCoordinatorTests: XCTestCase {
         pasteAtCursor: Bool = true,
         autoProofread: Bool = false,
         transcriberReady: Bool = true,
+        accessibilityGranted: Bool = true,
         glossaryTerms: String = "EMS\nPCS\n"
     ) throws -> Rig {
         let defaults = UserDefaults(suiteName: "RC-\(UUID().uuidString)")!
@@ -60,7 +61,8 @@ final class RecordingCoordinatorTests: XCTestCase {
             noteStore: noteStore,
             rewriter: rewriter,
             deliverer: deliverer,
-            glossary: glossary
+            glossary: glossary,
+            isAccessibilityGranted: { accessibilityGranted }
         )
         return Rig(coordinator: coordinator, state: state, recorder: recorder,
                    transcriber: transcriber, noteStore: noteStore, rewriter: rewriter,
@@ -169,6 +171,20 @@ final class RecordingCoordinatorTests: XCTestCase {
 
             XCTAssertEqual(rig.deliverer.deliveredWithPaste, paste)
         }
+    }
+
+    /// B8: paste-at-cursor without Accessibility falls back to clipboard-only + a hint.
+    func test_release_pasteWithoutAccessibility_fallsBackToClipboard_withHint() async throws {
+        let rig = try makeRig(pasteAtCursor: true, accessibilityGranted: false)
+        rig.transcriber.transcribeResult = .success("內容")
+
+        rig.coordinator.handlePress()
+        rig.coordinator.handleRelease()
+        await rig.coordinator.waitForPendingWork()
+
+        XCTAssertEqual(rig.deliverer.deliveredWithPaste, false)
+        XCTAssertEqual(rig.deliverer.deliveredText, "內容")
+        XCTAssertNotNil(rig.state.infoMessage)
     }
 
     func test_release_tooShortRecording_returnsToIdle_writesNothing() async throws {

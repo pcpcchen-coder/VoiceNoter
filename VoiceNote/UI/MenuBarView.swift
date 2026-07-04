@@ -67,6 +67,9 @@ struct MenuBarView: View {
                 NSApplication.shared.terminate(nil)
             }
         }
+        // B9: refresh the mic permission each time the menu opens, so a change made in
+        // System Settings is reflected without relaunching.
+        .onAppear { state.refreshMicPermission() }
     }
 
     /// 當日筆記檔路徑（用正式筆記目錄）。Step 10 依賴注入後改由 store 提供。

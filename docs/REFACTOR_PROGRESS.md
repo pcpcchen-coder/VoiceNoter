@@ -45,13 +45,18 @@ Claude（或任何執行者）必須遵守以下守則：
 | 11 | `PostTranscriptionPipeline` 與 bug 修正 | ✅ | 2026-07-03 | `<this>` | 新增 `Core/PostTranscriptionPipeline.swift`（校稿/整理抽出）；修 B1（成功走 `infoMessage` 灰字非 `lastError`）、B2（訊息不再被尾端清除）、B3（「幫我整理」改為 `appendSection` 追加段落、永不覆蓋、觸發語句不寫入）、B4（校稿改用 `replaceLastEntry` 會拋錯）；B5 取捨寫入 README。`AppState` 加 `infoMessage`/`noteInfo`；`NoteFormatter.section` + `NoteStore.appendSection`；`MenuBarView` 灰字顯示。新增 7 個 pipeline 測試 + 3 個 coordinator 回歸（B1/B2/B3）+ AppState/NoteFormatter/FileNoteStore 測試。**Phase 3 完成** |
 | 12 | `RecorderState` 收斂 + 模型切換免重啟 | ✅ | 2026-07-03 | `<this>` | 刪 `modelLoadFailed`，warmup 失敗改進 `.error`（`setError`，D3 除名）；coordinator 以 Combine 訂閱 `$selectedModel` 切模型即時重載（A9）；`handlePress` 依 `.error`/載入中分流、用 `flashError` 不動狀態；`MenuBarView` 重試鍵改 `case .error`、statusLine 抽到 `UI/MenuStatusText`；`SettingsView` 移除「重啟」文案。新增 `MenuStatusTextTests` + 4 個 coordinator 測試（warmup 失敗/復原/換模型/reload 阻擋）。手動驗收待 Mac |
 | 13 | `SettingsView` 拆分 + `ModelDownloader` 統一 | ✅ | 2026-07-03 | `<this>` | 新增 `ModelDownloading` 協定 + `WhisperKitModelDownloader`（`warmup` 與設定頁預下載共用，A8）；`ModelDownloadViewModel`（狀態機）+ 4 個測試（mock downloader）；`SettingsView` 拆成 `UI/Settings/` 7 個 section view（皆 ≤55 行）+ 組裝，移除 WhisperKit import。DoD：UI/ 無 View >150 行、`import WhisperKit` 只剩 WhisperKitTranscriber/ModelDownloader。**Phase 4 完成** |
-| 14 | 文件同步、最終清掃、手動驗收 | ⬜ | | | |
+| 14 | 文件同步、最終清掃、手動驗收 | ✅ | 2026-07-03 | `<this>` | 修 B8（貼上前檢查 Accessibility、退回複製 + 提示，注入 `isAccessibilityGranted` 可測）、B9（選單 `.onAppear` 刷新麥克風權限）；B7 文件化為已知限制；`VoiceNote_Phase1_Spec.md` 移入 `docs/history/`；新增 `docs/ARCHITECTURE.md`；README 改寫技術架構 + 已知限制。最終檢查：55 檔全登記無孤兒、print/TODO 歸零。手動驗收（附錄 A）待使用者於 Mac 執行 |
 
 ---
 
 ## 手動驗收紀錄
 
 （附錄 A 清單的執行結果記在這裡，格式：日期 / 執行項目 / 結果）
+
+> ⚠️ **待使用者於 Mac 執行**：CI（GitHub Actions / macOS runner）只涵蓋單元測試，
+> 系統整合面（真實麥克風、全域熱鍵、CGEvent 游標貼上、真 Keychain、真 WhisperKit 模型）
+> 無法在 CI 驗證。請在 Mac 上跑 `REFACTOR_PLAN.md` 附錄 A 的 12 項清單並記錄於下表。
+> 重點：#7 校稿灰字、#8「幫我整理」追加不覆蓋、#9 API Key 在 Keychain、Step 12 切模型免重啟。
 
 | 日期 | 項目 | 結果 | 備註 |
 |------|------|------|------|
