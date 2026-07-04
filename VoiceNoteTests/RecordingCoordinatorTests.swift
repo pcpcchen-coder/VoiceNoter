@@ -196,4 +196,53 @@ final class RecordingCoordinatorTests: XCTestCase {
         XCTAssertEqual(rig.transcriber.transcribeCalls.count, 0)
         XCTAssertEqual(rig.recorder.stopCallCount, 0)
     }
+
+    // MARK: - Step 11 regressions (B1/B2/B3)
+
+    func test_newRecording_clearsInfoMessageAndLastError() throws {
+        let rig = try makeRig()
+        rig.state.lastError = "舊錯誤"
+        rig.state.infoMessage = "舊資訊"
+
+        rig.coordinator.handlePress()
+
+        XCTAssertNil(rig.state.lastError)
+        XCTAssertNil(rig.state.infoMessage)
+        XCTAssertTrue(isRecording(rig.state.state))
+    }
+
+    /// B1 + B2: proofread success shows a gray info message (not a red error) and it
+    /// survives the run completing (no tail clears it).
+    func test_release_proofreadSuccess_setsInfoMessage_notLastError() async throws {
+        let rig = try makeRig(autoProofread: true)
+        rig.transcriber.transcribeResult = .success("原始逐字稿")
+        rig.rewriter.result = .success("校稿後")
+
+        rig.coordinator.handlePress()
+        rig.coordinator.handleRelease()
+        await rig.coordinator.waitForPendingWork()
+
+        XCTAssertEqual(rig.state.infoMessage, "已自動校稿")
+        XCTAssertNil(rig.state.lastError)
+        XCTAssertEqual(rig.noteStore.replaceCalls.first?.replacement, "校稿後")
+        XCTAssertEqual(rig.state.state, .idle)
+    }
+
+    /// B3: an organize command appends a summary section and never overwrites the note;
+    /// the trigger utterance itself is not written.
+    func test_release_organizeCommand_appendsSummary_notTrigger() async throws {
+        let rig = try makeRig()
+        rig.transcriber.transcribeResult = .success("幫我整理今天的筆記")
+        rig.noteStore.readResult = .success("# 2026-05-02\n\n## 09:00:00\n\n既有內容\n")
+        rig.rewriter.result = .success("整理摘要")
+
+        rig.coordinator.handlePress()
+        rig.coordinator.handleRelease()
+        await rig.coordinator.waitForPendingWork()
+
+        XCTAssertTrue(rig.noteStore.appendedTranscripts.isEmpty, "trigger utterance must not be appended")
+        XCTAssertEqual(rig.noteStore.appendedSections.count, 1)
+        XCTAssertEqual(rig.noteStore.appendedSections.first?.body, "整理摘要")
+        XCTAssertEqual(rig.state.infoMessage, "筆記已由 AI 整理")
+    }
 }

@@ -34,6 +34,12 @@ enum NoteFormatter {
         "\n## \(timeFormatter.string(from: date))\n\n\(transcript)\n"
     }
 
+    /// 自訂標題的段落：前置空行 + H2 標題 + 空行 + 內容 + 換行。
+    /// 用於 AI 整理摘要等非逐字稿段落。
+    static func section(title: String, body: String) -> String {
+        "\n## \(title)\n\n\(body)\n"
+    }
+
     /// 將 `text` 中「最後一次」出現的 `target` 換成 `replacement`。
     /// 找不到時回傳 `nil`，讓呼叫端可據此拋錯而非靜默略過（為 Step 11 修 B4 鋪路）。
     static func replacingLastOccurrence(of target: String, with replacement: String, in text: String) -> String? {

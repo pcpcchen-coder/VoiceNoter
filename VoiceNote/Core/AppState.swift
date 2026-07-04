@@ -29,7 +29,10 @@ final class AppState: ObservableObject {
 
     @Published var state: RecorderState = .idle
     @Published var lastTranscript: String = ""
+    /// 錯誤訊息（選單顯示為紅字）。只用於失敗。
     @Published var lastError: String? = nil
+    /// 資訊／成功訊息（選單顯示為灰字）。與 `lastError` 分流，避免成功訊息被當成錯誤。
+    @Published var infoMessage: String? = nil
     @Published var micPermission: MicrophonePermissionStatus = .undetermined
     @Published var selectedModel: String
     @Published var autoProofread: Bool
@@ -67,8 +70,16 @@ final class AppState: ObservableObject {
         self.state = .idle
     }
 
+    /// Info / success message — shown gray in the menu. Never routed through `lastError`.
+    func noteInfo(_ message: String) {
+        Log.app.info("AppState info: \(message, privacy: .public)")
+        self.infoMessage = message
+    }
+
+    /// Clears both transient messages (error + info). Called when a new recording starts.
     func clearTransientError() {
         self.lastError = nil
+        self.infoMessage = nil
         if case .error = self.state {
             self.state = .idle
         }

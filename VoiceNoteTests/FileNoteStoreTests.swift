@@ -109,6 +109,17 @@ final class FileNoteStoreTests: XCTestCase {
         )
     }
 
+    func test_appendSection_addsCustomTitledSection_andPreservesExistingContent() throws {
+        let date = Self.makeDate(year: 2026, month: 5, day: 2, hour: 9, minute: 0, second: 0)
+        _ = try store.append(transcript: "既有逐字稿", at: date)
+
+        try store.appendSection(title: "AI 整理 (14:30)", body: "整理後摘要", now: date)
+
+        let contents = try String(contentsOf: store.todayNoteURL(now: date), encoding: .utf8)
+        XCTAssertTrue(contents.contains("既有逐字稿"), "original content must be preserved")
+        XCTAssertTrue(contents.contains("## AI 整理 (14:30)\n\n整理後摘要\n"))
+    }
+
     func test_readToday_returnsFileContents() throws {
         let date = Self.makeDate(year: 2026, month: 5, day: 2, hour: 12, minute: 0, second: 0)
         _ = try store.append(transcript: "可讀內容", at: date)

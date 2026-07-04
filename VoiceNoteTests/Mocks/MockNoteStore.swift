@@ -8,6 +8,9 @@ final class MockNoteStore: NoteStoring {
     private(set) var appendedTranscripts: [String] = []
     var appendError: Error?
 
+    private(set) var appendedSections: [(title: String, body: String)] = []
+    var appendSectionError: Error?
+
     var readResult: Result<String, Error> = .success("")
     var replaceError: Error?
     private(set) var replaceCalls: [(original: String, replacement: String)] = []
@@ -16,6 +19,11 @@ final class MockNoteStore: NoteStoring {
         if let appendError { throw appendError }
         appendedTranscripts.append(transcript)
         return directory.appendingPathComponent("note.md")
+    }
+
+    func appendSection(title: String, body: String, now: Date) throws {
+        if let appendSectionError { throw appendSectionError }
+        appendedSections.append((title, body))
     }
 
     func todayNoteURL(now: Date) -> URL {

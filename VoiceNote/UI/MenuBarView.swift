@@ -27,6 +27,12 @@ struct MenuBarView: View {
                     .disabled(true)
             }
 
+            if let info = state.infoMessage {
+                Text(info)
+                    .foregroundStyle(.secondary)
+                    .disabled(true)
+            }
+
             if !state.lastTranscript.isEmpty {
                 Button("最近：\(previewSnippet(state.lastTranscript))") {
                     SystemTranscriptDeliverer.openInDefaultApp(todayNoteURL)

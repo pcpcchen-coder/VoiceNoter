@@ -7,6 +7,8 @@ import Foundation
 protocol NoteStoring {
     @discardableResult
     func append(transcript: String, at date: Date) throws -> URL
+    /// 追加一個自訂標題的段落（如 AI 整理摘要）到當日筆記末尾，永不覆蓋既有內容。
+    func appendSection(title: String, body: String, now: Date) throws
     func todayNoteURL(now: Date) -> URL
     func readToday(now: Date) throws -> String
     func replaceLastEntry(matching original: String, with replacement: String, now: Date) throws
@@ -58,6 +60,27 @@ final class FileNoteStore: NoteStoring {
 
         Log.note.info("Appended note to \(url.path, privacy: .public)")
         return url
+    }
+
+    func appendSection(title: String, body: String, now: Date = Date()) throws {
+        let url = todayNoteURL(now: now)
+        let fm = FileManager.default
+
+        if !fm.fileExists(atPath: directory.path) {
+            try fm.createDirectory(at: directory, withIntermediateDirectories: true)
+        }
+        if !fm.fileExists(atPath: url.path) {
+            try NoteFormatter.header(for: now).write(to: url, atomically: true, encoding: .utf8)
+        }
+
+        let section = NoteFormatter.section(title: title, body: body)
+        let handle = try FileHandle(forWritingTo: url)
+        defer { try? handle.close() }
+        try handle.seekToEnd()
+        if let data = section.data(using: .utf8) {
+            try handle.write(contentsOf: data)
+        }
+        Log.note.info("Appended section '\(title, privacy: .public)' to \(url.path, privacy: .public)")
     }
 
     func readToday(now: Date = Date()) throws -> String {

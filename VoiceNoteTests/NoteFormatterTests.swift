@@ -22,6 +22,13 @@ final class NoteFormatterTests: XCTestCase {
         )
     }
 
+    func test_section_formatsCustomTitleAndBody() {
+        XCTAssertEqual(
+            NoteFormatter.section(title: "AI 整理 (14:30)", body: "摘要內容"),
+            "\n## AI 整理 (14:30)\n\n摘要內容\n"
+        )
+    }
+
     // MARK: - replacingLastOccurrence
 
     func test_replacingLastOccurrence_replacesOnlyLastMatch() {

@@ -20,6 +20,7 @@ final class RecordingCoordinator: ObservableObject {
     private let rewriter: TextRewriting
     private let deliverer: TranscriptDelivering
     private let glossary: GlossaryStore
+    private let pipeline: PostTranscriptionPipeline
 
     private var hotkey: HotkeyManager?
     private var warmupTask: Task<Void, Never>?
@@ -45,6 +46,7 @@ final class RecordingCoordinator: ObservableObject {
         self.rewriter = rewriter
         self.deliverer = deliverer
         self.glossary = glossary
+        self.pipeline = PostTranscriptionPipeline(rewriter: rewriter, noteStore: noteStore, state: state)
     }
 
     /// Side effects that should only run in the real app: register the global hotkey and
@@ -206,45 +208,29 @@ final class RecordingCoordinator: ObservableObject {
         defer { try? FileManager.default.removeItem(at: audioURL) }
 
         do {
+            let now = Date()
             let decoding = DecodingSettings(settings: settings, prompt: glossary.prompt())
             let text = try await transcriber.transcribe(audioURL: audioURL, settings: decoding)
             state.lastTranscript = text
+
+            // Deliver the original transcript to the cursor (low latency); the note may be
+            // superseded by the proofread version below. See README's B5 tradeoff note.
             deliverer.deliver(text, pasteAtCursor: state.pasteAtCursor)
-            try noteStore.append(transcript: text, at: Date())
 
-            if state.autoProofread {
-                do {
-                    let proofread = try await rewriter.rewrite(text)
-                    let noteURL = noteStore.todayNoteURL(now: Date())
-                    if var fileContent = try? String(contentsOf: noteURL, encoding: .utf8) {
-                        if let range = fileContent.range(of: text, options: .backwards) {
-                            fileContent.replaceSubrange(range, with: proofread)
-                            try? fileContent.write(to: noteURL, atomically: true, encoding: .utf8)
-                        }
-                    }
-                    self.state.noteSoftFailure("語音已自動校稿")
-                } catch {
-                    self.state.noteSoftFailure("AI 校稿失敗：\(error.localizedDescription)")
-                }
+            let isOrganizeCommand = PostTranscriptionPipeline.detectOrganizeCommand(text)
+            // The "organize" trigger utterance is a command, not a note — don't append it.
+            if !isOrganizeCommand {
+                try noteStore.append(transcript: text, at: now)
             }
 
-            if text.contains("幫我整理") || text.contains("請整理") {
-                let noteURL = noteStore.todayNoteURL(now: Date())
-                if let original = try? String(contentsOf: noteURL), !original.isEmpty {
-                    Task { @MainActor in
-                        do {
-                            let rewritten = try await rewriter.rewrite(original)
-                            try? rewritten.write(to: noteURL, atomically: true, encoding: .utf8)
-                            self.state.noteSoftFailure("筆記內容已由 AI 整理")
-                        } catch {
-                            self.state.noteSoftFailure("AI 整理失敗：\(error.localizedDescription)")
-                        }
-                    }
-                }
-            }
-
+            // Core flow is done; go idle. Post-processing sets its own info/error messages.
             state.state = .idle
-            state.lastError = nil
+
+            if isOrganizeCommand {
+                await pipeline.organize(now: now)
+            } else {
+                await pipeline.proofread(original: text, enabled: state.autoProofread, now: now)
+            }
         } catch {
             state.noteSoftFailure("上次轉錄失敗：\(error.localizedDescription)")
         }

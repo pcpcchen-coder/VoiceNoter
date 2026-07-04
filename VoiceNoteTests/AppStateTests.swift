@@ -70,6 +70,24 @@ final class AppStateTests: XCTestCase {
         XCTAssertNotEqual(RecorderState.error("x"), RecorderState.error("y"))
     }
 
+    func test_noteInfo_setsInfoMessageNotLastError() {
+        let s = makeState()
+        s.noteInfo("完成")
+        XCTAssertEqual(s.infoMessage, "完成")
+        XCTAssertNil(s.lastError)
+    }
+
+    func test_clearTransientError_alsoClearsInfoMessage() {
+        let s = makeState()
+        s.infoMessage = "info"
+        s.lastError = "err"
+
+        s.clearTransientError()
+
+        XCTAssertNil(s.infoMessage)
+        XCTAssertNil(s.lastError)
+    }
+
     // MARK: - 設定寫入會透傳到 SettingsStore
 
     func test_setters_updatePublishedProperties() {
