@@ -114,6 +114,7 @@ App 啟動後會在選單列出現麥克風圖示（無 Dock 圖示）。
 
 - 每日筆記：`~/Documents/VoiceNotes/YYYY-MM-DD.md`
 - 詞表：`~/Library/Application Support/VoiceNote/glossary.txt`
+- Whisper 模型檔：`~/Documents/huggingface/models/`（可在「設定 → 模型 → 模型儲存位置」查看並用 Finder 開啟，方便刪除不再使用的大型模型）
 
 筆記格式：
 

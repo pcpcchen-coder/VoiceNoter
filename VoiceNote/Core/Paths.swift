@@ -20,6 +20,23 @@ enum Paths {
         return documents.appendingPathComponent("huggingface/models", isDirectory: true)
     }
 
+    /// 把絕對路徑開頭的家目錄縮寫為 `~`，方便在設定頁顯示。找不到家目錄前綴時原樣回傳。
+    static func displayPath(for url: URL, home: String = NSHomeDirectory()) -> String {
+        displayPath(forPath: url.path, home: home)
+    }
+
+    /// `displayPath(for:)` 的純字串版本，`home` 可注入以便測試。
+    static func displayPath(forPath path: String, home: String) -> String {
+        let trimmedHome = home.hasSuffix("/") ? String(home.dropLast()) : home
+        guard !trimmedHome.isEmpty else { return path }
+        if path == trimmedHome { return "~" }
+        // 只在完整路徑元件邊界（/）比對，避免 /Users/foo 誤配到 /Users/foobar。
+        if path.hasPrefix(trimmedHome + "/") {
+            return "~" + path.dropFirst(trimmedHome.count)
+        }
+        return path
+    }
+
     static func ensureDirectoriesExist() {
         let fm = FileManager.default
         for dir in [notesDirectory, appSupportDirectory, modelsDirectory] {

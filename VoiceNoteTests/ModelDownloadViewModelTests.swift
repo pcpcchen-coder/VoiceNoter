@@ -73,4 +73,28 @@ final class ModelDownloadViewModelTests: XCTestCase {
         downloader.release()
         await first.value
     }
+
+    // MARK: - Model storage folder (settings UI)
+
+    func test_modelsFolderDisplayPath_isHomeAbbreviated() {
+        let vm = ModelDownloadViewModel(downloader: MockModelDownloader(), settings: makeSettings())
+        let display = vm.modelsFolderDisplayPath
+        XCTAssertTrue(display.hasPrefix("~/"), "expected home-abbreviated path, got \(display)")
+        XCTAssertTrue(display.hasSuffix("huggingface/models"))
+    }
+
+    func test_downloadedFolderDisplayPath_isNilWhenModelNotDownloaded() {
+        let vm = ModelDownloadViewModel(downloader: MockModelDownloader(), settings: makeSettings())
+        XCTAssertNil(vm.downloadedFolderDisplayPath(for: "openai_whisper-small"))
+    }
+
+    func test_downloadedFolderDisplayPath_returnsStoredPathAfterDownload() {
+        let settings = makeSettings()
+        // A path outside the home dir round-trips unchanged, so the assertion is
+        // deterministic regardless of the machine's real home directory.
+        settings.setModelFolderPath("/opt/whisper/small", for: "openai_whisper-small")
+        let vm = ModelDownloadViewModel(downloader: MockModelDownloader(), settings: settings)
+
+        XCTAssertEqual(vm.downloadedFolderDisplayPath(for: "openai_whisper-small"), "/opt/whisper/small")
+    }
 }

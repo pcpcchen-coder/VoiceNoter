@@ -25,6 +25,17 @@ final class ModelDownloadViewModel: ObservableObject {
         return false
     }
 
+    /// 所有 Whisper 模型下載後存放的根資料夾（家目錄縮寫為 `~`），供設定頁顯示。
+    var modelsFolderDisplayPath: String {
+        Paths.displayPath(for: Paths.modelsDirectory)
+    }
+
+    /// 指定模型若已下載，回傳其本地資料夾的顯示路徑（家目錄縮寫為 `~`）；未下載回 `nil`。
+    func downloadedFolderDisplayPath(for modelName: String) -> String? {
+        guard let path = settings.modelFolderPath(for: modelName) else { return nil }
+        return Paths.displayPath(forPath: path, home: NSHomeDirectory())
+    }
+
     func download(modelName: String) async {
         guard !isDownloading else { return }   // 防止並行下載
         status = .downloading(progress: 0)

@@ -1,4 +1,5 @@
 import SwiftUI
+import AppKit
 
 struct ModelSection: View {
     @ObservedObject var state: AppState
@@ -39,7 +40,38 @@ struct ModelSection: View {
             Text("切換後會自動重新載入模型，無需重啟 App。")
                 .font(.caption)
                 .foregroundStyle(.secondary)
+
+            Divider()
+
+            storageLocation
         }
+    }
+
+    /// 顯示模型檔存放位置，方便使用者管理／刪除大型模型檔。
+    @ViewBuilder private var storageLocation: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text("模型儲存位置")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+            Text(download.modelsFolderDisplayPath)
+                .font(.caption.monospaced())
+                .textSelection(.enabled)
+            if let path = download.downloadedFolderDisplayPath(for: state.selectedModel) {
+                Text("目前模型：\(path)")
+                    .font(.caption2.monospaced())
+                    .foregroundStyle(.secondary)
+                    .textSelection(.enabled)
+            }
+        }
+
+        Button("在 Finder 開啟模型資料夾") {
+            Paths.ensureDirectoriesExist()
+            NSWorkspace.shared.open(Paths.modelsDirectory)
+        }
+
+        Text("大型模型檔存放於此，可在 Finder 中刪除不再使用的模型以釋放空間。")
+            .font(.caption)
+            .foregroundStyle(.secondary)
     }
 
     @ViewBuilder private var statusText: some View {
