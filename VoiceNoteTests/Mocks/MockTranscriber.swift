@@ -9,6 +9,9 @@ final class MockTranscriber: Transcribing {
 
     var warmupError: Error?
     private(set) var warmupCalls: [String] = []
+    /// Download fractions emitted (in order) before `onLoadingStarted`, mirroring the real
+    /// transcriber which reports true 0…1 download progress then switches to loading.
+    var warmupProgressSequence: [Double] = []
 
     var transcribeResult: Result<String, Error> = .success("mock transcript")
     private(set) var transcribeCalls: [(url: URL, settings: DecodingSettings)] = []
@@ -21,8 +24,10 @@ final class MockTranscriber: Transcribing {
         warmupCalls.append(modelName)
         if let warmupError { throw warmupError }
         isReadyValue = true
+        for fraction in warmupProgressSequence {
+            await onProgress(fraction)
+        }
         await onLoadingStarted()
-        await onProgress(1.0)
     }
 
     func transcribe(audioURL: URL, settings: DecodingSettings) async throws -> String {

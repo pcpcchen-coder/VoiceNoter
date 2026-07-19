@@ -49,10 +49,13 @@ final class WhisperKitTranscriber: Transcribing {
                FileManager.default.fileExists(atPath: cachedPath) {
                 Log.transcription.info("Using cached model at \(cachedPath, privacy: .public)")
                 modelFolder = URL(fileURLWithPath: cachedPath)
-                await onProgress(0.8)
+                // Already on disk — the download is effectively 100% complete.
+                await onProgress(1.0)
             } else {
+                // Report the true download fraction (0…1); loading is signalled separately
+                // via onLoadingStarted so the UI can show a real 0–100% download percentage.
                 modelFolder = try await downloader.download(variant: modelName) { fraction in
-                    onProgress(fraction * 0.8)
+                    onProgress(fraction)
                 }
                 settings.setModelFolderPath(modelFolder.path, for: modelName)
                 Log.transcription.info("Model downloaded to \(modelFolder.path, privacy: .public)")
@@ -69,7 +72,6 @@ final class WhisperKitTranscriber: Transcribing {
             let kit = try await WhisperKit(config)
             self.whisperKit = kit
             self.loadedModel = modelName
-            await onProgress(1.0)
             Log.transcription.info("WhisperKit ready")
         } catch {
             Log.transcription.error("WhisperKit init failed: \(error.localizedDescription, privacy: .public)")

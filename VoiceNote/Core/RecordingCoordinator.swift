@@ -102,12 +102,10 @@ final class RecordingCoordinator: ObservableObject {
             try await transcriber.warmup(
                 modelName: modelName,
                 onProgress: { [weak self] progress in
-                    guard let self else { return }
-                    if progress >= 1.0 {
-                        self.state.state = .idle
-                    } else {
-                        self.state.state = .downloadingModel(progress: progress)
-                    }
+                    // Pure download progress (0…1). Reaching 1.0 means "download done", not
+                    // "ready" — the .loadingModel phase and the post-warmup .idle below drive
+                    // the remaining transitions, so a full download won't flip us to idle early.
+                    self?.state.state = .downloadingModel(progress: min(max(progress, 0), 1))
                 },
                 onLoadingStarted: { [weak self] in
                     self?.state.state = .loadingModel

@@ -1,4 +1,5 @@
 import XCTest
+import Combine
 @testable import VoiceNote
 
 @MainActor
@@ -315,5 +316,26 @@ final class RecordingCoordinatorTests: XCTestCase {
         await rig.coordinator.waitForWarmup()
 
         XCTAssertEqual(rig.transcriber.warmupCalls.last, "openai_whisper-small")
+    }
+
+    /// Download progress is forwarded to the UI unscaled (0…100%), and reaching 1.0 during
+    /// download must NOT prematurely flip the app to idle — loading/ready drive that instead.
+    func test_warmup_forwardsDownloadProgressUnscaled_thenIdle() async throws {
+        let rig = try makeRig(transcriberReady: false)
+        rig.transcriber.warmupProgressSequence = [0.25, 1.0]
+
+        var seen: [Double] = []
+        let cancellable = rig.state.$state.sink { st in
+            if case .downloadingModel(let p) = st { seen.append(p) }
+        }
+        defer { cancellable.cancel() }
+
+        rig.coordinator.retryWarmup()
+        await rig.coordinator.waitForWarmup()
+
+        XCTAssertTrue(seen.contains(0.25), "expected the reported 25% to reach the UI, saw \(seen)")
+        XCTAssertTrue(seen.contains(1.0), "expected a full 100% download step, saw \(seen)")
+        XCTAssertEqual(rig.state.state, .idle)
+        XCTAssertTrue(rig.transcriber.isReady)
     }
 }

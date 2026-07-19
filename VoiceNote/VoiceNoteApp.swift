@@ -37,6 +37,12 @@ struct VoiceNoteApp: App {
                 .environmentObject(coordinator)
         } label: {
             StatusIcon(state: state.state, micDenied: state.micPermission == .denied)
+            // Show the download % right on the menu-bar label so progress is visible
+            // at a glance, without opening the menu or hovering for the tooltip.
+            if state.micPermission != .denied,
+               let percent = MenuStatusText.menuBarProgressText(state: state.state) {
+                Text(percent)
+            }
         }
         .menuBarExtraStyle(.menu)
 
